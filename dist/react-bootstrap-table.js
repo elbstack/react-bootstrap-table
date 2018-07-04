@@ -105,11 +105,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _SearchField2 = _interopRequireDefault(_SearchField);
 
-	var _ButtonGroup = __webpack_require__(76);
+	var _ButtonGroup = __webpack_require__(75);
 
 	var _ButtonGroup2 = _interopRequireDefault(_ButtonGroup);
 
-	var _SizePerPageDropDown = __webpack_require__(44);
+	var _SizePerPageDropDown = __webpack_require__(43);
 
 	var _SizePerPageDropDown2 = _interopRequireDefault(_SizePerPageDropDown);
 
@@ -205,11 +205,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _TableBody2 = _interopRequireDefault(_TableBody);
 
-	var _PaginationList = __webpack_require__(42);
+	var _PaginationList = __webpack_require__(41);
 
 	var _PaginationList2 = _interopRequireDefault(_PaginationList);
 
-	var _ToolBar = __webpack_require__(45);
+	var _ToolBar = __webpack_require__(44);
 
 	var _ToolBar2 = _interopRequireDefault(_ToolBar);
 
@@ -223,11 +223,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _util2 = _interopRequireDefault(_util);
 
-	var _csv_export_util = __webpack_require__(70);
+	var _csv_export_util = __webpack_require__(69);
 
 	var _csv_export_util2 = _interopRequireDefault(_csv_export_util);
 
-	var _Filter = __webpack_require__(74);
+	var _Filter = __webpack_require__(73);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -361,11 +361,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this._adjustHeaderWidth = _this._adjustHeaderWidth.bind(_this);
 	    _this._adjustHeight = _this._adjustHeight.bind(_this);
 	    _this._adjustTable = _this._adjustTable.bind(_this);
+	    _this.toggleExpandAllChilds = _this.toggleExpandAllChilds.bind(_this);
+
+	    var expandedKeys = [];
+	    if (_this.props.options.expandAllChilds !== null && _this.props.options.expandAllChilds !== undefined && _this.props.options.expandAllChilds) {
+	      expandedKeys = _this.store.getAllRowkey();
+	    } else if (_this.props.options.expanding !== undefined && _this.props.options.expanding !== null) {
+	      expandedKeys = _this.props.options.expanding;
+	    }
 
 	    _this.state = {
 	      data: _this.getTableData(),
 	      currPage: currPage,
-	      expanding: _this.props.options.expanding || [],
+	      expanding: expandedKeys,
 	      sizePerPage: _this.props.options.sizePerPage || _Const2.default.SIZE_PER_PAGE_LIST[0],
 	      selectedRowKeys: _this.store.getSelectedRowKeys(),
 	      reset: false,
@@ -924,6 +932,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var showToolbarOnTop = toolbarPosition !== _Const2.default.TOOLBAR_POS_BOTTOM;
 	      var showToolbarOnBottom = toolbarPosition !== _Const2.default.TOOLBAR_POS_TOP;
+	      var _props$options$hideRo = this.props.options.hideRowOnExpand,
+	          hideRowOnExpand = _props$options$hideRo === undefined ? false : _props$options$hideRo;
 
 	      return _react2.default.createElement(
 	        'div',
@@ -965,6 +975,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	              reset: this.state.reset,
 	              expandColumnVisible: expandColumnOptions.expandColumnVisible,
 	              expandColumnComponent: expandColumnOptions.expandColumnComponent,
+	              expandedColumnHeaderComponent: expandColumnOptions.expandedColumnHeaderComponent,
+	              noAnyExpand: this.state.expanding.length === 0,
+	              expandAll: this.props.options.expandAll,
+	              toggleExpandAllChilds: this.toggleExpandAllChilds,
 	              expandColumnBeforeSelectColumn: expandColumnOptions.expandColumnBeforeSelectColumn },
 	            this.props.children
 	          ),
@@ -1011,6 +1025,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            x: this.state.x,
 	            y: this.state.y,
 	            withoutTabIndex: this.props.withoutTabIndex,
+	            hideRowOnExpand: hideRowOnExpand,
 	            onEditCell: this.handleEditCell }),
 	          tableFooter
 	        ),
@@ -1125,6 +1140,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }, function () {
 	        _this6._adjustHeaderWidth();
 	      });
+	    }
+	  }, {
+	    key: 'toggleExpandAllChilds',
+	    value: function toggleExpandAllChilds() {
+	      var _this7 = this;
+
+	      var expanding = this.state.expanding;
+
+	      if (expanding.length > 0) {
+	        this.setState(function () {
+	          return {
+	            expanding: [],
+	            reset: false
+	          };
+	        });
+	      } else {
+	        this.setState(function () {
+	          return {
+	            expanding: _this7.store.getAllRowkey(),
+	            reset: false
+	          };
+	        });
+	      }
 	    }
 	  }, {
 	    key: '__handlePaginationData__REACT_HOT_LOADER__',
@@ -1418,7 +1456,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '__handleEditCell__REACT_HOT_LOADER__',
 	    value: function __handleEditCell__REACT_HOT_LOADER__(newVal, rowIndex, colIndex) {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      var beforeSaveCell = this.props.cellEdit.beforeSaveCell;
 
@@ -1426,9 +1464,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var fieldName = columns[colIndex].name;
 
 	      var invalid = function invalid() {
-	        _this7.setState(function () {
+	        _this8.setState(function () {
 	          return {
-	            data: _this7.store.get(),
+	            data: _this8.store.get(),
 	            reset: false
 	          };
 	        });
@@ -1437,9 +1475,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      if (beforeSaveCell) {
 	        var beforeSaveCellCB = function beforeSaveCellCB(result) {
-	          _this7.body.cancelEditCell();
+	          _this8.body.cancelEditCell();
 	          if (result || result === undefined) {
-	            _this7.editCell(newVal, rowIndex, colIndex);
+	            _this8.editCell(newVal, rowIndex, colIndex);
 	          } else {
 	            invalid();
 	          }
@@ -1500,7 +1538,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '__handleAddRow__REACT_HOT_LOADER__',
 	    value: function __handleAddRow__REACT_HOT_LOADER__(newObj) {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      var isAsync = false;
 	      var onAddRow = this.props.options.onAddRow;
@@ -1508,7 +1546,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var afterHandleAddRow = function afterHandleAddRow(errMsg) {
 	        if (isAsync) {
-	          _this8.toolbar.afterHandleSaveBtnClick(errMsg);
+	          _this9.toolbar.afterHandleSaveBtnClick(errMsg);
 	        } else {
 	          return errMsg;
 	        }
@@ -1516,19 +1554,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var afterAddRowCB = function afterAddRowCB(errMsg) {
 	        if (typeof errMsg !== 'undefined' && errMsg !== '') return afterHandleAddRow(errMsg);
-	        if (_this8.allowRemote(_Const2.default.REMOTE_INSERT_ROW)) {
-	          if (_this8.props.options.afterInsertRow) {
-	            _this8.props.options.afterInsertRow(newObj);
+	        if (_this9.allowRemote(_Const2.default.REMOTE_INSERT_ROW)) {
+	          if (_this9.props.options.afterInsertRow) {
+	            _this9.props.options.afterInsertRow(newObj);
 	          }
 	          return afterHandleAddRow();
 	        }
 
 	        try {
-	          _this8.store.add(newObj);
+	          _this9.store.add(newObj);
 	        } catch (e) {
 	          return afterHandleAddRow(e.message);
 	        }
-	        _this8._handleAfterAddingRow(newObj, false);
+	        _this9._handleAfterAddingRow(newObj, false);
 	        return afterHandleAddRow();
 	      };
 
@@ -1582,14 +1620,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '__handleDropRow__REACT_HOT_LOADER__',
 	    value: function __handleDropRow__REACT_HOT_LOADER__(rowKeys) {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      var dropRowKeys = rowKeys ? rowKeys : this.store.getSelectedRowKeys();
 	      // add confirm before the delete action if that option is set.
 	      if (dropRowKeys && dropRowKeys.length > 0) {
 	        if (this.props.options.handleConfirmDeleteRow) {
 	          this.props.options.handleConfirmDeleteRow(function () {
-	            _this9.deleteRow(dropRowKeys);
+	            _this10.deleteRow(dropRowKeys);
 	          }, dropRowKeys);
 	        } else if (confirm('Are you sure you want to delete?')) {
 	          this.deleteRow(dropRowKeys);
@@ -1599,7 +1637,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'deleteRow',
 	    value: function deleteRow(dropRowKeys) {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      var dropRow = this.store.getRowByKey(dropRowKeys);
 	      var _props$options2 = this.props.options,
@@ -1636,7 +1674,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.setState(function () {
 	          return {
 	            data: result,
-	            selectedRowKeys: _this10.store.getSelectedRowKeys(),
+	            selectedRowKeys: _this11.store.getSelectedRowKeys(),
 	            currPage: currPage,
 	            reset: false
 	          };
@@ -1647,7 +1685,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return {
 	            data: result,
 	            reset: false,
-	            selectedRowKeys: _this10.store.getSelectedRowKeys()
+	            selectedRowKeys: _this11.store.getSelectedRowKeys()
 	          };
 	        });
 	      }
@@ -1817,7 +1855,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'renderPagination',
 	    value: function renderPagination() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      if (this.props.pagination) {
 	        var dataSize = void 0;
@@ -1835,8 +1873,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	          { className: 'react-bs-table-pagination' },
 	          _react2.default.createElement(_PaginationList2.default, {
 	            ref: function ref(node) {
-	              return _this11.pagination = node;
+	              return _this12.pagination = node;
 	            },
+	            version: this.props.version,
 	            withFirstAndLast: withFirstAndLast,
 	            alwaysShowAllBtns: options.alwaysShowAllBtns,
 	            currPage: this.state.currPage,
@@ -1869,7 +1908,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'renderToolBar',
 	    value: function renderToolBar() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      var _props5 = this.props,
 	          exportCSV = _props5.exportCSV,
@@ -1923,7 +1962,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          { className: 'react-bs-table-tool-bar ' + (print ? '' : 'hidden-print') },
 	          _react2.default.createElement(_ToolBar2.default, {
 	            ref: function ref(node) {
-	              return _this12.toolbar = node;
+	              return _this13.toolbar = node;
 	            },
 	            version: this.props.version,
 	            defaultSearch: this.props.options.defaultSearch,
@@ -1983,7 +2022,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'renderTableFooter',
 	    value: function renderTableFooter(footerData, footerFormatterReturnData, columns, colGroups) {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      if (this.props.footer) {
 	        var hideSelectColumn = true;
@@ -1997,7 +2036,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          _TableFooter2.default,
 	          {
 	            ref: function ref(node) {
-	              return _this13.footer = node;
+	              return _this14.footer = node;
 	            },
 	            columns: columns,
 	            colGroups: colGroups,
@@ -2316,7 +2355,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    beforeShowError: _propTypes2.default.func,
 	    printToolBar: _propTypes2.default.bool,
 	    insertFailIndicator: _propTypes2.default.string,
-	    noAutoBOM: _propTypes2.default.bool
+	    noAutoBOM: _propTypes2.default.bool,
+	    expandAll: _propTypes2.default.bool,
+	    hideRowOnExpand: _propTypes2.default.bool
 	  }),
 	  fetchInfo: _propTypes2.default.shape({
 	    dataTotalSize: _propTypes2.default.number
@@ -2336,6 +2377,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    columnWidth: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.string]),
 	    expandColumnVisible: _propTypes2.default.bool,
 	    expandColumnComponent: _propTypes2.default.func,
+	    expandedColumnHeaderComponent: _propTypes2.default.func,
 	    expandColumnBeforeSelectColumn: _propTypes2.default.bool
 	  }),
 	  footer: _propTypes2.default.bool
@@ -2349,6 +2391,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  expandColumnOptions: {
 	    expandColumnVisible: false,
 	    expandColumnComponent: undefined,
+	    expandedColumnHeaderComponent: undefined,
 	    expandColumnBeforeSelectColumn: true
 	  },
 	  height: '100%',
@@ -2484,7 +2527,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    beforeShowError: undefined,
 	    printToolBar: true,
 	    insertFailIndicator: _Const2.default.INSERT_FAIL_INDICATOR,
-	    noAutoBOM: true
+	    noAutoBOM: true,
+	    expandAll: false,
+	    hideRowOnExpand: false
 	  },
 	  fetchInfo: {
 	    dataTotalSize: 0
@@ -2510,9 +2555,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(BootstrapTable, 'BootstrapTable', '/Users/gigo/projects/github/react-bootstrap-table/src/BootstrapTable.js');
+	  __REACT_HOT_LOADER__.register(BootstrapTable, 'BootstrapTable', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/BootstrapTable.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/BootstrapTable.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/BootstrapTable.js');
 	}();
 
 	;
@@ -3858,11 +3903,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	    }
 
+	    var _extends = Object.assign || function (target) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            var source = arguments[i];
+
+	            for (var key in source) {
+	                if (Object.prototype.hasOwnProperty.call(source, key)) {
+	                    target[key] = source[key];
+	                }
+	            }
+	        }
+
+	        return target;
+	    };
+
 	    var insertFunc = function insertFunc(msg, data, condition) {
 	        var id = _sAlertTools2.default.randomId();
 	        _sAlertStore2.default.dispatch({
 	            type: 'INSERT',
-	            data: Object.assign({}, data, {
+	            data: _extends({}, data, {
 	                id: id,
 	                condition: condition,
 	                message: msg
@@ -3899,54 +3958,70 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var storeStateBottom = void 0;
 
 	                var addToStoreRight = function addToStoreRight() {
-	                    var length = void 0;
-	                    storeStateRight = (0, _sAlertDataPrep2.default)('right') || [];
-	                    length = storeStateRight.length;
-	                    if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
-	                        var id = storeStateRight[0].id;
-	                        _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
-	                        storeStateRight = (0, _sAlertDataPrep2.default)('right') || [];
-	                    }
-	                    _this2.setState({ dataRight: storeStateRight });
+	                    requestAnimationFrame(function () {
+	                        return requestAnimationFrame(function () {
+	                            var length = void 0;
+	                            storeStateRight = (0, _sAlertDataPrep2.default)('right') || [];
+	                            length = storeStateRight.length;
+	                            if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
+	                                var id = storeStateRight[0].id;
+	                                _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
+	                                storeStateRight = (0, _sAlertDataPrep2.default)('right') || [];
+	                            }
+	                            _this2.setState({ dataRight: storeStateRight });
+	                        });
+	                    });
 	                };
 	                this.unsubStoreRight = _sAlertStore2.default.subscribe(addToStoreRight);
 
 	                var addToStoreLeft = function addToStoreLeft() {
-	                    var length = void 0;
-	                    storeStateLeft = (0, _sAlertDataPrep2.default)('left') || [];
-	                    length = storeStateLeft.length;
-	                    if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
-	                        var id = storeStateLeft[0].id;
-	                        _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
-	                        storeStateLeft = (0, _sAlertDataPrep2.default)('left') || [];
-	                    }
-	                    _this2.setState({ dataLeft: storeStateLeft });
+	                    requestAnimationFrame(function () {
+	                        return requestAnimationFrame(function () {
+	                            var length = void 0;
+	                            storeStateLeft = (0, _sAlertDataPrep2.default)('left') || [];
+	                            length = storeStateLeft.length;
+	                            if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
+	                                var id = storeStateLeft[0].id;
+	                                _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
+	                                storeStateLeft = (0, _sAlertDataPrep2.default)('left') || [];
+	                            }
+	                            _this2.setState({ dataLeft: storeStateLeft });
+	                        });
+	                    });
 	                };
 	                this.unsubStoreLeft = _sAlertStore2.default.subscribe(addToStoreLeft);
 
 	                var addToStoreTop = function addToStoreTop() {
-	                    var length = void 0;
-	                    storeStateTop = (0, _sAlertDataPrep2.default)('full-top') || [];
-	                    length = storeStateTop.length;
-	                    if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
-	                        var id = storeStateTop[0].id;
-	                        _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
-	                        storeStateTop = (0, _sAlertDataPrep2.default)('full-top') || [];
-	                    }
-	                    _this2.setState({ dataTop: storeStateTop });
+	                    requestAnimationFrame(function () {
+	                        return requestAnimationFrame(function () {
+	                            var length = void 0;
+	                            storeStateTop = (0, _sAlertDataPrep2.default)('full-top') || [];
+	                            length = storeStateTop.length;
+	                            if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
+	                                var id = storeStateTop[0].id;
+	                                _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
+	                                storeStateTop = (0, _sAlertDataPrep2.default)('full-top') || [];
+	                            }
+	                            _this2.setState({ dataTop: storeStateTop });
+	                        });
+	                    });
 	                };
 	                this.unsubStoreTop = _sAlertStore2.default.subscribe(addToStoreTop);
 
 	                var addToStoreBottom = function addToStoreBottom() {
-	                    var length = void 0;
-	                    storeStateBottom = (0, _sAlertDataPrep2.default)('full-bottom') || [];
-	                    length = storeStateBottom.length;
-	                    if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
-	                        var id = storeStateBottom[0].id;
-	                        _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
-	                        storeStateBottom = (0, _sAlertDataPrep2.default)('full-bottom') || [];
-	                    }
-	                    _this2.setState({ dataBottom: storeStateBottom });
+	                    requestAnimationFrame(function () {
+	                        return requestAnimationFrame(function () {
+	                            var length = void 0;
+	                            storeStateBottom = (0, _sAlertDataPrep2.default)('full-bottom') || [];
+	                            length = storeStateBottom.length;
+	                            if (_this2.props.stack && _this2.props.stack.limit && length > _this2.props.stack.limit) {
+	                                var id = storeStateBottom[0].id;
+	                                _sAlertStore2.default.dispatch({ type: 'REMOVE', data: { id: id } });
+	                                storeStateBottom = (0, _sAlertDataPrep2.default)('full-bottom') || [];
+	                            }
+	                            _this2.setState({ dataBottom: storeStateBottom });
+	                        });
+	                    });
 	                };
 	                this.unsubStoreBottom = _sAlertStore2.default.subscribe(addToStoreBottom);
 
@@ -4637,6 +4712,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	    }
 
+	    var _extends = Object.assign || function (target) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            var source = arguments[i];
+
+	            for (var key in source) {
+	                if (Object.prototype.hasOwnProperty.call(source, key)) {
+	                    target[key] = source[key];
+	                }
+	            }
+	        }
+
+	        return target;
+	    };
+
 	    var getAlertData = function getAlertData(sAlertPosition) {
 	        var positionTop = 0;
 	        var positionBottom = 0;
@@ -4750,13 +4839,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (sAlertPosition === 'right') {
 	                    style = style + 'right: ' + (aStack.spacing || parseInt(sAlertComputedStyle.right)) + 'px;';
 	                }
-	                alerts = Object.assign({}, alert, { boxPosition: style });
+	                alerts = _extends({}, alert, { boxPosition: style });
 	                _reactDom2.default.unmountComponentAtNode(docElement);
 	                docElement.parentNode.removeChild(docElement);
 	            } else if (aOffset && positionTypeTop) {
-	                alerts = Object.assign({}, alert, { boxPosition: 'top: ' + parseInt(aOffset) + 'px;' });
+	                alerts = _extends({}, alert, { boxPosition: 'top: ' + parseInt(aOffset) + 'px;' });
 	            } else if (aOffset && positionTypeBottom) {
-	                alerts = Object.assign({}, alert, { boxPosition: 'bottom: ' + parseInt(aOffset) + 'px;' });
+	                alerts = _extends({}, alert, { boxPosition: 'bottom: ' + parseInt(aOffset) + 'px;' });
 	            } else {
 	                alerts = alert;
 	            }
@@ -4865,9 +4954,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(CONST_VAR, 'CONST_VAR', '/Users/gigo/projects/github/react-bootstrap-table/src/Const.js');
+	  __REACT_HOT_LOADER__.register(CONST_VAR, 'CONST_VAR', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/Const.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/Const.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/Const.js');
 	}();
 
 	;
@@ -4971,7 +5060,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var filter = currentFilter[nextProps.dataField];
 	        var value = filter ? filter.value : '';
 
-	        var _ref = this.getFilters() || {},
+	        var _ref = this.getFilters(nextProps) || {},
 	            ref = _ref.ref;
 
 	        if (this.refs[ref]) {
@@ -5000,49 +5089,49 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function getFilters() {
 	      var _this2 = this;
 
-	      var _props = this.props,
-	          headerText = _props.headerText,
-	          children = _props.children;
+	      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
+	      var headerText = props.headerText,
+	          children = props.children;
 
-	      switch (this.props.filter.type) {
+	      switch (props.filter.type) {
 	        case _Const2.default.FILTER_TYPE.TEXT:
 	          {
 	            return _react2.default.createElement(_Text2.default, _extends({ ref: function ref(n) {
 	                return _this2.textFilter = n;
-	              } }, this.props.filter, {
+	              } }, props.filter, {
 	              columnName: headerText || children, filterHandler: this.handleFilter }));
 	          }
 	        case _Const2.default.FILTER_TYPE.REGEX:
 	          {
 	            return _react2.default.createElement(_Regex2.default, _extends({ ref: function ref(n) {
 	                return _this2.regexFilter = n;
-	              } }, this.props.filter, {
+	              } }, props.filter, {
 	              columnName: headerText || children, filterHandler: this.handleFilter }));
 	          }
 	        case _Const2.default.FILTER_TYPE.SELECT:
 	          {
 	            return _react2.default.createElement(_Select2.default, _extends({ ref: function ref(n) {
 	                return _this2.selectFilter = n;
-	              } }, this.props.filter, {
+	              } }, props.filter, {
 	              columnName: headerText || children, filterHandler: this.handleFilter }));
 	          }
 	        case _Const2.default.FILTER_TYPE.NUMBER:
 	          {
 	            return _react2.default.createElement(_Number2.default, _extends({ ref: function ref(n) {
 	                return _this2.numberFilter = n;
-	              } }, this.props.filter, {
+	              } }, props.filter, {
 	              columnName: headerText || children, filterHandler: this.handleFilter }));
 	          }
 	        case _Const2.default.FILTER_TYPE.DATE:
 	          {
 	            return _react2.default.createElement(_Date2.default, _extends({ ref: function ref(n) {
 	                return _this2.dateFilter = n;
-	              } }, this.props.filter, {
+	              } }, props.filter, {
 	              columnName: headerText || children, filterHandler: this.handleFilter }));
 	          }
 	        case _Const2.default.FILTER_TYPE.CUSTOM:
 	          {
-	            var elm = this.props.filter.getElement(this.handleFilter, this.props.filter.customFilterParameters);
+	            var elm = props.filter.getElement(this.handleFilter, props.filter.customFilterParameters);
 
 	            return _react2.default.cloneElement(elm, { ref: function ref(n) {
 	                return _this2.customFilter = n;
@@ -5087,23 +5176,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var defaultCaret = void 0;
 	      var sortCaret = void 0;
 	      var sortClass = void 0;
-	      var _props2 = this.props,
-	          headerText = _props2.headerText,
-	          dataAlign = _props2.dataAlign,
-	          dataField = _props2.dataField,
-	          headerAlign = _props2.headerAlign,
-	          headerTitle = _props2.headerTitle,
-	          hidden = _props2.hidden,
-	          sort = _props2.sort,
-	          dataSort = _props2.dataSort,
-	          sortIndicator = _props2.sortIndicator,
-	          children = _props2.children,
-	          caretRender = _props2.caretRender,
-	          className = _props2.className,
-	          isOnlyHead = _props2.isOnlyHead,
-	          version = _props2.version,
-	          customSortClass = _props2.sortHeaderColumnClassName,
-	          style = _props2.thStyle;
+	      var _props = this.props,
+	          headerText = _props.headerText,
+	          dataAlign = _props.dataAlign,
+	          dataField = _props.dataField,
+	          headerAlign = _props.headerAlign,
+	          headerTitle = _props.headerTitle,
+	          hidden = _props.hidden,
+	          sort = _props.sort,
+	          dataSort = _props.dataSort,
+	          sortIndicator = _props.sortIndicator,
+	          children = _props.children,
+	          caretRender = _props.caretRender,
+	          className = _props.className,
+	          isOnlyHead = _props.isOnlyHead,
+	          version = _props.version,
+	          customSortClass = _props.sortHeaderColumnClassName,
+	          style = _props.thStyle;
 
 	      var thStyle = _extends({
 	        textAlign: headerAlign || dataAlign,
@@ -5339,11 +5428,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableHeaderColumn, 'TableHeaderColumn', '/Users/gigo/projects/github/react-bootstrap-table/src/TableHeaderColumn.js');
+	  __REACT_HOT_LOADER__.register(TableHeaderColumn, 'TableHeaderColumn', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableHeaderColumn.js');
 
-	  __REACT_HOT_LOADER__.register(filterTypeArray, 'filterTypeArray', '/Users/gigo/projects/github/react-bootstrap-table/src/TableHeaderColumn.js');
+	  __REACT_HOT_LOADER__.register(filterTypeArray, 'filterTypeArray', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableHeaderColumn.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableHeaderColumn.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableHeaderColumn.js');
 	}();
 
 	;
@@ -5501,7 +5590,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/util.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/util.js');
 	}();
 
 	;
@@ -5729,13 +5818,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(legalComparators, 'legalComparators', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Date.js');
+	  __REACT_HOT_LOADER__.register(legalComparators, 'legalComparators', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Date.js');
 
-	  __REACT_HOT_LOADER__.register(dateParser, 'dateParser', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Date.js');
+	  __REACT_HOT_LOADER__.register(dateParser, 'dateParser', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Date.js');
 
-	  __REACT_HOT_LOADER__.register(DateFilter, 'DateFilter', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Date.js');
+	  __REACT_HOT_LOADER__.register(DateFilter, 'DateFilter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Date.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Date.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Date.js');
 	}();
 
 	;
@@ -5888,9 +5977,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TextFilter, 'TextFilter', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Text.js');
+	  __REACT_HOT_LOADER__.register(TextFilter, 'TextFilter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Text.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Text.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Text.js');
 	}();
 
 	;
@@ -6027,9 +6116,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(RegexFilter, 'RegexFilter', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Regex.js');
+	  __REACT_HOT_LOADER__.register(RegexFilter, 'RegexFilter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Regex.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Regex.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Regex.js');
 	}();
 
 	;
@@ -6229,11 +6318,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(optionsEquals, 'optionsEquals', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Select.js');
+	  __REACT_HOT_LOADER__.register(optionsEquals, 'optionsEquals', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Select.js');
 
-	  __REACT_HOT_LOADER__.register(SelectFilter, 'SelectFilter', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Select.js');
+	  __REACT_HOT_LOADER__.register(SelectFilter, 'SelectFilter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Select.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Select.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Select.js');
 	}();
 
 	;
@@ -6518,11 +6607,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(legalComparators, 'legalComparators', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Number.js');
+	  __REACT_HOT_LOADER__.register(legalComparators, 'legalComparators', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Number.js');
 
-	  __REACT_HOT_LOADER__.register(NumberFilter, 'NumberFilter', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Number.js');
+	  __REACT_HOT_LOADER__.register(NumberFilter, 'NumberFilter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Number.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/filters/Number.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filters/Number.js');
 	}();
 
 	;
@@ -6668,7 +6757,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          reset = _props.reset,
 	          version = _props.version,
 	          condensed = _props.condensed,
-	          bordered = _props.bordered;
+	          bordered = _props.bordered,
+	          expandedColumnHeaderComponent = _props.expandedColumnHeaderComponent,
+	          noAnyExpand = _props.noAnyExpand,
+	          toggleExpandAllChilds = _props.toggleExpandAllChilds,
+	          expandAll = _props.expandAll;
 
 	      var containerClasses = (0, _classnames2.default)('react-bs-container-header', 'table-header-wrapper', this.props.headerContainerClass);
 	      var customTableClasses = {
@@ -6687,7 +6780,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var rowKey = 0;
 
 	      rows[0] = [];
-	      rows[0].push([this.props.expandColumnVisible && this.props.expandColumnBeforeSelectColumn && _react2.default.createElement(_ExpandRowHeaderColumn2.default, { key: 'expandCol', rowCount: rowCount + 1 })], [this.renderSelectRowHeader(rowCount + 1, rowKey++)], [this.props.expandColumnVisible && !this.props.expandColumnBeforeSelectColumn && _react2.default.createElement(_ExpandRowHeaderColumn2.default, { key: 'expandCol', rowCount: rowCount + 1 })]);
+	      rows[0].push([this.props.expandColumnVisible && this.props.expandColumnBeforeSelectColumn && _react2.default.createElement(_ExpandRowHeaderColumn2.default, { key: 'expandCol', rowCount: rowCount + 1,
+	        expandedColumnHeaderComponent: expandedColumnHeaderComponent,
+	        noAnyExpand: noAnyExpand,
+	        expandAll: expandAll,
+	        toggleExpandAllChilds: toggleExpandAllChilds })], [this.renderSelectRowHeader(rowCount + 1, rowKey++)], [this.props.expandColumnVisible && !this.props.expandColumnBeforeSelectColumn && _react2.default.createElement(_ExpandRowHeaderColumn2.default, { key: 'expandCol', rowCount: rowCount + 1,
+	        expandedColumnHeaderComponent: expandedColumnHeaderComponent,
+	        noAnyExpand: noAnyExpand,
+	        expandAll: expandAll,
+	        toggleExpandAllChilds: toggleExpandAllChilds })]);
 
 	      _react2.default.Children.forEach(this.props.children, function (elm) {
 	        if (elm === null || elm === undefined) {
@@ -6800,8 +6901,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  reset: _propTypes2.default.bool,
 	  expandColumnVisible: _propTypes2.default.bool,
 	  expandColumnComponent: _propTypes2.default.func,
+	  expandedColumnHeaderComponent: _propTypes2.default.func,
 	  expandColumnBeforeSelectColumn: _propTypes2.default.bool,
-	  version: _propTypes2.default.string
+	  version: _propTypes2.default.string,
+	  noAnyExpand: _propTypes2.default.bool,
+	  expandAll: _propTypes2.default.bool,
+	  toggleExpandAllChilds: _propTypes2.default.func
 	};
 
 	var _default = TableHeader;
@@ -6813,13 +6918,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(Checkbox, 'Checkbox', '/Users/gigo/projects/github/react-bootstrap-table/src/TableHeader.js');
+	  __REACT_HOT_LOADER__.register(Checkbox, 'Checkbox', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableHeader.js');
 
-	  __REACT_HOT_LOADER__.register(getSortOrder, 'getSortOrder', '/Users/gigo/projects/github/react-bootstrap-table/src/TableHeader.js');
+	  __REACT_HOT_LOADER__.register(getSortOrder, 'getSortOrder', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableHeader.js');
 
-	  __REACT_HOT_LOADER__.register(TableHeader, 'TableHeader', '/Users/gigo/projects/github/react-bootstrap-table/src/TableHeader.js');
+	  __REACT_HOT_LOADER__.register(TableHeader, 'TableHeader', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableHeader.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableHeader.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableHeader.js');
 	}();
 
 	;
@@ -6889,9 +6994,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(SelectRowHeaderColumn, 'SelectRowHeaderColumn', '/Users/gigo/projects/github/react-bootstrap-table/src/SelectRowHeaderColumn.js');
+	  __REACT_HOT_LOADER__.register(SelectRowHeaderColumn, 'SelectRowHeaderColumn', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/SelectRowHeaderColumn.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/SelectRowHeaderColumn.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/SelectRowHeaderColumn.js');
 	}();
 
 	;
@@ -6927,21 +7032,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ExpandRowHeaderColumn = function (_Component) {
 	  _inherits(ExpandRowHeaderColumn, _Component);
 
-	  function ExpandRowHeaderColumn() {
+	  function ExpandRowHeaderColumn(props) {
 	    _classCallCheck(this, ExpandRowHeaderColumn);
 
-	    return _possibleConstructorReturn(this, (ExpandRowHeaderColumn.__proto__ || Object.getPrototypeOf(ExpandRowHeaderColumn)).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, (ExpandRowHeaderColumn.__proto__ || Object.getPrototypeOf(ExpandRowHeaderColumn)).call(this, props));
+
+	    _this.toggleExpandAllChilds = _this.toggleExpandAllChilds.bind(_this);
+	    return _this;
 	  }
 
 	  _createClass(ExpandRowHeaderColumn, [{
+	    key: 'toggleExpandAllChilds',
+	    value: function toggleExpandAllChilds() {
+	      this.props.toggleExpandAllChilds();
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var _props = this.props,
+	          expandedColumnHeaderComponent = _props.expandedColumnHeaderComponent,
+	          noAnyExpand = _props.noAnyExpand,
+	          expandAll = _props.expandAll;
+
+	      var expandedHeaderComponent = noAnyExpand ? _react2.default.createElement('span', { className: 'fa fa-plus glyphicon glyphicon-plus' }) : _react2.default.createElement('span', { className: 'fa fa-minus glyphicon glyphicon-minus' });
+	      var ExpandedColumnHeaderComponent = expandedColumnHeaderComponent;
+
 	      return _react2.default.createElement(
 	        'th',
 	        { rowSpan: this.props.rowCount, style: { textAlign: 'center' },
 	          className: 'react-bs-table-expand-cell',
 	          'data-is-only-head': false },
-	        this.props.children
+	        expandAll ? _react2.default.createElement(
+	          'div',
+	          { onClick: this.toggleExpandAllChilds },
+	          expandedColumnHeaderComponent ? _react2.default.createElement(ExpandedColumnHeaderComponent, {
+	            anyExpand: !noAnyExpand }) : expandedHeaderComponent
+	        ) : null
 	      );
 	    }
 	  }]);
@@ -6950,8 +7076,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(_react.Component);
 
 	ExpandRowHeaderColumn.propTypes = {
-	  children: _propTypes2.default.node,
-	  rowCount: _propTypes2.default.number
+	  expandedColumnHeaderComponent: _propTypes2.default.func,
+	  rowCount: _propTypes2.default.number,
+	  noAnyExpand: _propTypes2.default.bool,
+	  expandAll: _propTypes2.default.bool,
+	  toggleExpandAllChilds: _propTypes2.default.func
 	};
 	var _default = ExpandRowHeaderColumn;
 	exports.default = _default;
@@ -6962,9 +7091,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(ExpandRowHeaderColumn, 'ExpandRowHeaderColumn', '/Users/gigo/projects/github/react-bootstrap-table/src/ExpandRowHeaderColumn.js');
+	  __REACT_HOT_LOADER__.register(ExpandRowHeaderColumn, 'ExpandRowHeaderColumn', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/ExpandRowHeaderColumn.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/ExpandRowHeaderColumn.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/ExpandRowHeaderColumn.js');
 	}();
 
 	;
@@ -7116,9 +7245,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableFooter, 'TableFooter', '/Users/gigo/projects/github/react-bootstrap-table/src/TableFooter.js');
+	  __REACT_HOT_LOADER__.register(TableFooter, 'TableFooter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableFooter.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableFooter.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableFooter.js');
 	}();
 
 	;
@@ -7174,10 +7303,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _ExpandComponent = __webpack_require__(40);
 
 	var _ExpandComponent2 = _interopRequireDefault(_ExpandComponent);
-
-	var _lodash = __webpack_require__(41);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7376,7 +7501,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var tableColumns = this.props.columns.filter(function (_) {
 	          return _ != null;
 	        }).map(function (column, i) {
-	          var fieldValue = (0, _lodash2.default)(data, column.name);
+	          var fieldValue = data[column.name];
 	          var isFocusCell = r === y && i === x;
 	          if (column.name !== this.props.keyField && // Key field can't be edit
 	          column.editable && // column is editable? default is true, user can set it false
@@ -7472,8 +7597,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var expandedRowColumn = this.renderExpandRowColumn(this.props.expandableRow && this.props.expandableRow(data), this.props.expanding.indexOf(key) > -1, ExpandColumnCustomComponent, r);
 	        var haveExpandContent = this.props.expandableRow && this.props.expandableRow(data);
 	        var isExpanding = haveExpandContent && this.props.expanding.indexOf(key) > -1;
-
+	        var hideRowOnExpand = this.props.hideRowOnExpand;
 	        // add by bluespring for className customize
+
 	        var trClassName = this.props.trClassName;
 	        if (_util2.default.isFunction(this.props.trClassName)) {
 	          trClassName = this.props.trClassName(data, r);
@@ -7496,6 +7622,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            onExpandRow: this.handleClickCell,
 	            unselectableRow: disable,
 	            style: trStyle,
+	            hidden: isExpanding && hideRowOnExpand,
 	            dbClickToEdit: cellEdit.mode === _Const2.default.CELL_EDIT_DBCLICK },
 	          this.props.expandColumnOptions.expandColumnVisible && this.props.expandColumnOptions.expandColumnBeforeSelectColumn && expandedRowColumn,
 	          selectRowColumn,
@@ -7913,7 +8040,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  x: _propTypes2.default.number,
 	  y: _propTypes2.default.number,
 	  onNavigateCell: _propTypes2.default.func,
-	  withoutTabIndex: _propTypes2.default.bool
+	  withoutTabIndex: _propTypes2.default.bool,
+	  hideRowOnExpand: _propTypes2.default.bool
 	};
 	var _default = TableBody;
 	exports.default = _default;
@@ -7924,9 +8052,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableBody, 'TableBody', '/Users/gigo/projects/github/react-bootstrap-table/src/TableBody.js');
+	  __REACT_HOT_LOADER__.register(TableBody, 'TableBody', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableBody.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableBody.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableBody.js');
 	}();
 
 	;
@@ -8113,7 +8241,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          row = _props2.row,
 	          isSelected = _props2.isSelected,
 	          className = _props2.className,
-	          index = _props2.index;
+	          index = _props2.index,
+	          hidden = _props2.hidden;
 	      var style = this.props.style;
 
 	      var backgroundColor = null;
@@ -8145,6 +8274,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          onMouseOver: this.rowMouseOver,
 	          onMouseOut: this.rowMouseOut,
 	          onClick: this.rowClick,
+	          hidden: hidden,
 	          onDoubleClick: this.rowDoubleClick }),
 	        this.props.children
 	      );
@@ -8166,11 +8296,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  onExpandRow: _propTypes2.default.func,
 	  onRowMouseOut: _propTypes2.default.func,
 	  onRowMouseOver: _propTypes2.default.func,
-	  unselectableRow: _propTypes2.default.bool
+	  unselectableRow: _propTypes2.default.bool,
+	  hidden: _propTypes2.default.bool
 	};
 	TableRow.defaultProps = {
 	  onRowClick: undefined,
-	  onRowDoubleClick: undefined
+	  onRowDoubleClick: undefined,
+	  hidden: false
 	};
 	var _default = TableRow;
 	exports.default = _default;
@@ -8181,9 +8313,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableRow, 'TableRow', '/Users/gigo/projects/github/react-bootstrap-table/src/TableRow.js');
+	  __REACT_HOT_LOADER__.register(TableRow, 'TableRow', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableRow.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableRow.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableRow.js');
 	}();
 
 	;
@@ -8461,9 +8593,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableColumn, 'TableColumn', '/Users/gigo/projects/github/react-bootstrap-table/src/TableColumn.js');
+	  __REACT_HOT_LOADER__.register(TableColumn, 'TableColumn', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableColumn.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableColumn.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableColumn.js');
 	}();
 
 	;
@@ -8916,9 +9048,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableEditColumn, 'TableEditColumn', '/Users/gigo/projects/github/react-bootstrap-table/src/TableEditColumn.js');
+	  __REACT_HOT_LOADER__.register(TableEditColumn, 'TableEditColumn', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableEditColumn.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableEditColumn.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableEditColumn.js');
 	}();
 
 	;
@@ -9066,9 +9198,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(editor, 'editor', '/Users/gigo/projects/github/react-bootstrap-table/src/Editor.js');
+	  __REACT_HOT_LOADER__.register(editor, 'editor', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/Editor.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/Editor.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/Editor.js');
 	}();
 
 	;
@@ -9111,7 +9243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(notice, 'notice', '/Users/gigo/projects/github/react-bootstrap-table/src/Notification.js');
+	  __REACT_HOT_LOADER__.register(notice, 'notice', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/Notification.js');
 	}();
 
 	;
@@ -9192,953 +9324,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(ExpandComponent, 'ExpandComponent', '/Users/gigo/projects/github/react-bootstrap-table/src/ExpandComponent.js');
+	  __REACT_HOT_LOADER__.register(ExpandComponent, 'ExpandComponent', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/ExpandComponent.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/ExpandComponent.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/ExpandComponent.js');
 	}();
 
 	;
 
 /***/ }),
 /* 41 */
-/***/ (function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * lodash (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
-	 * Released under MIT license <https://lodash.com/license>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 */
-
-	/** Used as the `TypeError` message for "Functions" methods. */
-	var FUNC_ERROR_TEXT = 'Expected a function';
-
-	/** Used to stand-in for `undefined` hash values. */
-	var HASH_UNDEFINED = '__lodash_hash_undefined__';
-
-	/** Used as references for various `Number` constants. */
-	var INFINITY = 1 / 0;
-
-	/** `Object#toString` result references. */
-	var funcTag = '[object Function]',
-	    genTag = '[object GeneratorFunction]',
-	    symbolTag = '[object Symbol]';
-
-	/** Used to match property names within property paths. */
-	var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
-	    reIsPlainProp = /^\w*$/,
-	    reLeadingDot = /^\./,
-	    rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
-
-	/**
-	 * Used to match `RegExp`
-	 * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
-	 */
-	var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-
-	/** Used to match backslashes in property paths. */
-	var reEscapeChar = /\\(\\)?/g;
-
-	/** Used to detect host constructors (Safari). */
-	var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-	/** Detect free variable `global` from Node.js. */
-	var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-
-	/** Detect free variable `self`. */
-	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-
-	/** Used as a reference to the global object. */
-	var root = freeGlobal || freeSelf || Function('return this')();
-
-	/**
-	 * Gets the value at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} [object] The object to query.
-	 * @param {string} key The key of the property to get.
-	 * @returns {*} Returns the property value.
-	 */
-	function getValue(object, key) {
-	  return object == null ? undefined : object[key];
-	}
-
-	/**
-	 * Checks if `value` is a host object in IE < 9.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
-	 */
-	function isHostObject(value) {
-	  // Many host objects are `Object` objects that can coerce to strings
-	  // despite having improperly defined `toString` methods.
-	  var result = false;
-	  if (value != null && typeof value.toString != 'function') {
-	    try {
-	      result = !!(value + '');
-	    } catch (e) {}
-	  }
-	  return result;
-	}
-
-	/** Used for built-in method references. */
-	var arrayProto = Array.prototype,
-	    funcProto = Function.prototype,
-	    objectProto = Object.prototype;
-
-	/** Used to detect overreaching core-js shims. */
-	var coreJsData = root['__core-js_shared__'];
-
-	/** Used to detect methods masquerading as native. */
-	var maskSrcKey = (function() {
-	  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
-	  return uid ? ('Symbol(src)_1.' + uid) : '';
-	}());
-
-	/** Used to resolve the decompiled source of functions. */
-	var funcToString = funcProto.toString;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-
-	/** Used to detect if a method is native. */
-	var reIsNative = RegExp('^' +
-	  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
-	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-	);
-
-	/** Built-in value references. */
-	var Symbol = root.Symbol,
-	    splice = arrayProto.splice;
-
-	/* Built-in method references that are verified to be native. */
-	var Map = getNative(root, 'Map'),
-	    nativeCreate = getNative(Object, 'create');
-
-	/** Used to convert symbols to primitives and strings. */
-	var symbolProto = Symbol ? Symbol.prototype : undefined,
-	    symbolToString = symbolProto ? symbolProto.toString : undefined;
-
-	/**
-	 * Creates a hash object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */
-	function Hash(entries) {
-	  var index = -1,
-	      length = entries ? entries.length : 0;
-
-	  this.clear();
-	  while (++index < length) {
-	    var entry = entries[index];
-	    this.set(entry[0], entry[1]);
-	  }
-	}
-
-	/**
-	 * Removes all key-value entries from the hash.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf Hash
-	 */
-	function hashClear() {
-	  this.__data__ = nativeCreate ? nativeCreate(null) : {};
-	}
-
-	/**
-	 * Removes `key` and its value from the hash.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf Hash
-	 * @param {Object} hash The hash to modify.
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */
-	function hashDelete(key) {
-	  return this.has(key) && delete this.__data__[key];
-	}
-
-	/**
-	 * Gets the hash value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */
-	function hashGet(key) {
-	  var data = this.__data__;
-	  if (nativeCreate) {
-	    var result = data[key];
-	    return result === HASH_UNDEFINED ? undefined : result;
-	  }
-	  return hasOwnProperty.call(data, key) ? data[key] : undefined;
-	}
-
-	/**
-	 * Checks if a hash value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf Hash
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */
-	function hashHas(key) {
-	  var data = this.__data__;
-	  return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
-	}
-
-	/**
-	 * Sets the hash `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the hash instance.
-	 */
-	function hashSet(key, value) {
-	  var data = this.__data__;
-	  data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED : value;
-	  return this;
-	}
-
-	// Add methods to `Hash`.
-	Hash.prototype.clear = hashClear;
-	Hash.prototype['delete'] = hashDelete;
-	Hash.prototype.get = hashGet;
-	Hash.prototype.has = hashHas;
-	Hash.prototype.set = hashSet;
-
-	/**
-	 * Creates an list cache object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */
-	function ListCache(entries) {
-	  var index = -1,
-	      length = entries ? entries.length : 0;
-
-	  this.clear();
-	  while (++index < length) {
-	    var entry = entries[index];
-	    this.set(entry[0], entry[1]);
-	  }
-	}
-
-	/**
-	 * Removes all key-value entries from the list cache.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf ListCache
-	 */
-	function listCacheClear() {
-	  this.__data__ = [];
-	}
-
-	/**
-	 * Removes `key` and its value from the list cache.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */
-	function listCacheDelete(key) {
-	  var data = this.__data__,
-	      index = assocIndexOf(data, key);
-
-	  if (index < 0) {
-	    return false;
-	  }
-	  var lastIndex = data.length - 1;
-	  if (index == lastIndex) {
-	    data.pop();
-	  } else {
-	    splice.call(data, index, 1);
-	  }
-	  return true;
-	}
-
-	/**
-	 * Gets the list cache value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */
-	function listCacheGet(key) {
-	  var data = this.__data__,
-	      index = assocIndexOf(data, key);
-
-	  return index < 0 ? undefined : data[index][1];
-	}
-
-	/**
-	 * Checks if a list cache value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf ListCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */
-	function listCacheHas(key) {
-	  return assocIndexOf(this.__data__, key) > -1;
-	}
-
-	/**
-	 * Sets the list cache `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the list cache instance.
-	 */
-	function listCacheSet(key, value) {
-	  var data = this.__data__,
-	      index = assocIndexOf(data, key);
-
-	  if (index < 0) {
-	    data.push([key, value]);
-	  } else {
-	    data[index][1] = value;
-	  }
-	  return this;
-	}
-
-	// Add methods to `ListCache`.
-	ListCache.prototype.clear = listCacheClear;
-	ListCache.prototype['delete'] = listCacheDelete;
-	ListCache.prototype.get = listCacheGet;
-	ListCache.prototype.has = listCacheHas;
-	ListCache.prototype.set = listCacheSet;
-
-	/**
-	 * Creates a map cache object to store key-value pairs.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */
-	function MapCache(entries) {
-	  var index = -1,
-	      length = entries ? entries.length : 0;
-
-	  this.clear();
-	  while (++index < length) {
-	    var entry = entries[index];
-	    this.set(entry[0], entry[1]);
-	  }
-	}
-
-	/**
-	 * Removes all key-value entries from the map.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf MapCache
-	 */
-	function mapCacheClear() {
-	  this.__data__ = {
-	    'hash': new Hash,
-	    'map': new (Map || ListCache),
-	    'string': new Hash
-	  };
-	}
-
-	/**
-	 * Removes `key` and its value from the map.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */
-	function mapCacheDelete(key) {
-	  return getMapData(this, key)['delete'](key);
-	}
-
-	/**
-	 * Gets the map value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */
-	function mapCacheGet(key) {
-	  return getMapData(this, key).get(key);
-	}
-
-	/**
-	 * Checks if a map value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf MapCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */
-	function mapCacheHas(key) {
-	  return getMapData(this, key).has(key);
-	}
-
-	/**
-	 * Sets the map `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the map cache instance.
-	 */
-	function mapCacheSet(key, value) {
-	  getMapData(this, key).set(key, value);
-	  return this;
-	}
-
-	// Add methods to `MapCache`.
-	MapCache.prototype.clear = mapCacheClear;
-	MapCache.prototype['delete'] = mapCacheDelete;
-	MapCache.prototype.get = mapCacheGet;
-	MapCache.prototype.has = mapCacheHas;
-	MapCache.prototype.set = mapCacheSet;
-
-	/**
-	 * Gets the index at which the `key` is found in `array` of key-value pairs.
-	 *
-	 * @private
-	 * @param {Array} array The array to inspect.
-	 * @param {*} key The key to search for.
-	 * @returns {number} Returns the index of the matched value, else `-1`.
-	 */
-	function assocIndexOf(array, key) {
-	  var length = array.length;
-	  while (length--) {
-	    if (eq(array[length][0], key)) {
-	      return length;
-	    }
-	  }
-	  return -1;
-	}
-
-	/**
-	 * The base implementation of `_.get` without support for default values.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {Array|string} path The path of the property to get.
-	 * @returns {*} Returns the resolved value.
-	 */
-	function baseGet(object, path) {
-	  path = isKey(path, object) ? [path] : castPath(path);
-
-	  var index = 0,
-	      length = path.length;
-
-	  while (object != null && index < length) {
-	    object = object[toKey(path[index++])];
-	  }
-	  return (index && index == length) ? object : undefined;
-	}
-
-	/**
-	 * The base implementation of `_.isNative` without bad shim checks.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a native function,
-	 *  else `false`.
-	 */
-	function baseIsNative(value) {
-	  if (!isObject(value) || isMasked(value)) {
-	    return false;
-	  }
-	  var pattern = (isFunction(value) || isHostObject(value)) ? reIsNative : reIsHostCtor;
-	  return pattern.test(toSource(value));
-	}
-
-	/**
-	 * The base implementation of `_.toString` which doesn't convert nullish
-	 * values to empty strings.
-	 *
-	 * @private
-	 * @param {*} value The value to process.
-	 * @returns {string} Returns the string.
-	 */
-	function baseToString(value) {
-	  // Exit early for strings to avoid a performance hit in some environments.
-	  if (typeof value == 'string') {
-	    return value;
-	  }
-	  if (isSymbol(value)) {
-	    return symbolToString ? symbolToString.call(value) : '';
-	  }
-	  var result = (value + '');
-	  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
-	}
-
-	/**
-	 * Casts `value` to a path array if it's not one.
-	 *
-	 * @private
-	 * @param {*} value The value to inspect.
-	 * @returns {Array} Returns the cast property path array.
-	 */
-	function castPath(value) {
-	  return isArray(value) ? value : stringToPath(value);
-	}
-
-	/**
-	 * Gets the data for `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to query.
-	 * @param {string} key The reference key.
-	 * @returns {*} Returns the map data.
-	 */
-	function getMapData(map, key) {
-	  var data = map.__data__;
-	  return isKeyable(key)
-	    ? data[typeof key == 'string' ? 'string' : 'hash']
-	    : data.map;
-	}
-
-	/**
-	 * Gets the native function at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {string} key The key of the method to get.
-	 * @returns {*} Returns the function if it's native, else `undefined`.
-	 */
-	function getNative(object, key) {
-	  var value = getValue(object, key);
-	  return baseIsNative(value) ? value : undefined;
-	}
-
-	/**
-	 * Checks if `value` is a property name and not a property path.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {Object} [object] The object to query keys on.
-	 * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
-	 */
-	function isKey(value, object) {
-	  if (isArray(value)) {
-	    return false;
-	  }
-	  var type = typeof value;
-	  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
-	      value == null || isSymbol(value)) {
-	    return true;
-	  }
-	  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
-	    (object != null && value in Object(object));
-	}
-
-	/**
-	 * Checks if `value` is suitable for use as unique object key.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
-	 */
-	function isKeyable(value) {
-	  var type = typeof value;
-	  return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
-	    ? (value !== '__proto__')
-	    : (value === null);
-	}
-
-	/**
-	 * Checks if `func` has its source masked.
-	 *
-	 * @private
-	 * @param {Function} func The function to check.
-	 * @returns {boolean} Returns `true` if `func` is masked, else `false`.
-	 */
-	function isMasked(func) {
-	  return !!maskSrcKey && (maskSrcKey in func);
-	}
-
-	/**
-	 * Converts `string` to a property path array.
-	 *
-	 * @private
-	 * @param {string} string The string to convert.
-	 * @returns {Array} Returns the property path array.
-	 */
-	var stringToPath = memoize(function(string) {
-	  string = toString(string);
-
-	  var result = [];
-	  if (reLeadingDot.test(string)) {
-	    result.push('');
-	  }
-	  string.replace(rePropName, function(match, number, quote, string) {
-	    result.push(quote ? string.replace(reEscapeChar, '$1') : (number || match));
-	  });
-	  return result;
-	});
-
-	/**
-	 * Converts `value` to a string key if it's not a string or symbol.
-	 *
-	 * @private
-	 * @param {*} value The value to inspect.
-	 * @returns {string|symbol} Returns the key.
-	 */
-	function toKey(value) {
-	  if (typeof value == 'string' || isSymbol(value)) {
-	    return value;
-	  }
-	  var result = (value + '');
-	  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
-	}
-
-	/**
-	 * Converts `func` to its source code.
-	 *
-	 * @private
-	 * @param {Function} func The function to process.
-	 * @returns {string} Returns the source code.
-	 */
-	function toSource(func) {
-	  if (func != null) {
-	    try {
-	      return funcToString.call(func);
-	    } catch (e) {}
-	    try {
-	      return (func + '');
-	    } catch (e) {}
-	  }
-	  return '';
-	}
-
-	/**
-	 * Creates a function that memoizes the result of `func`. If `resolver` is
-	 * provided, it determines the cache key for storing the result based on the
-	 * arguments provided to the memoized function. By default, the first argument
-	 * provided to the memoized function is used as the map cache key. The `func`
-	 * is invoked with the `this` binding of the memoized function.
-	 *
-	 * **Note:** The cache is exposed as the `cache` property on the memoized
-	 * function. Its creation may be customized by replacing the `_.memoize.Cache`
-	 * constructor with one whose instances implement the
-	 * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
-	 * method interface of `delete`, `get`, `has`, and `set`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Function
-	 * @param {Function} func The function to have its output memoized.
-	 * @param {Function} [resolver] The function to resolve the cache key.
-	 * @returns {Function} Returns the new memoized function.
-	 * @example
-	 *
-	 * var object = { 'a': 1, 'b': 2 };
-	 * var other = { 'c': 3, 'd': 4 };
-	 *
-	 * var values = _.memoize(_.values);
-	 * values(object);
-	 * // => [1, 2]
-	 *
-	 * values(other);
-	 * // => [3, 4]
-	 *
-	 * object.a = 2;
-	 * values(object);
-	 * // => [1, 2]
-	 *
-	 * // Modify the result cache.
-	 * values.cache.set(object, ['a', 'b']);
-	 * values(object);
-	 * // => ['a', 'b']
-	 *
-	 * // Replace `_.memoize.Cache`.
-	 * _.memoize.Cache = WeakMap;
-	 */
-	function memoize(func, resolver) {
-	  if (typeof func != 'function' || (resolver && typeof resolver != 'function')) {
-	    throw new TypeError(FUNC_ERROR_TEXT);
-	  }
-	  var memoized = function() {
-	    var args = arguments,
-	        key = resolver ? resolver.apply(this, args) : args[0],
-	        cache = memoized.cache;
-
-	    if (cache.has(key)) {
-	      return cache.get(key);
-	    }
-	    var result = func.apply(this, args);
-	    memoized.cache = cache.set(key, result);
-	    return result;
-	  };
-	  memoized.cache = new (memoize.Cache || MapCache);
-	  return memoized;
-	}
-
-	// Assign cache to `_.memoize`.
-	memoize.Cache = MapCache;
-
-	/**
-	 * Performs a
-	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * comparison between two values to determine if they are equivalent.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
-	 * @example
-	 *
-	 * var object = { 'a': 1 };
-	 * var other = { 'a': 1 };
-	 *
-	 * _.eq(object, object);
-	 * // => true
-	 *
-	 * _.eq(object, other);
-	 * // => false
-	 *
-	 * _.eq('a', 'a');
-	 * // => true
-	 *
-	 * _.eq('a', Object('a'));
-	 * // => false
-	 *
-	 * _.eq(NaN, NaN);
-	 * // => true
-	 */
-	function eq(value, other) {
-	  return value === other || (value !== value && other !== other);
-	}
-
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */
-	var isArray = Array.isArray;
-
-	/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */
-	function isFunction(value) {
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 8-9 which returns 'object' for typed array and other constructors.
-	  var tag = isObject(value) ? objectToString.call(value) : '';
-	  return tag == funcTag || tag == genTag;
-	}
-
-	/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-
-	/**
-	 * Checks if `value` is classified as a `Symbol` primitive or object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
-	 * @example
-	 *
-	 * _.isSymbol(Symbol.iterator);
-	 * // => true
-	 *
-	 * _.isSymbol('abc');
-	 * // => false
-	 */
-	function isSymbol(value) {
-	  return typeof value == 'symbol' ||
-	    (isObjectLike(value) && objectToString.call(value) == symbolTag);
-	}
-
-	/**
-	 * Converts `value` to a string. An empty string is returned for `null`
-	 * and `undefined` values. The sign of `-0` is preserved.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to process.
-	 * @returns {string} Returns the string.
-	 * @example
-	 *
-	 * _.toString(null);
-	 * // => ''
-	 *
-	 * _.toString(-0);
-	 * // => '-0'
-	 *
-	 * _.toString([1, 2, 3]);
-	 * // => '1,2,3'
-	 */
-	function toString(value) {
-	  return value == null ? '' : baseToString(value);
-	}
-
-	/**
-	 * Gets the value at `path` of `object`. If the resolved value is
-	 * `undefined`, the `defaultValue` is returned in its place.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 3.7.0
-	 * @category Object
-	 * @param {Object} object The object to query.
-	 * @param {Array|string} path The path of the property to get.
-	 * @param {*} [defaultValue] The value returned for `undefined` resolved values.
-	 * @returns {*} Returns the resolved value.
-	 * @example
-	 *
-	 * var object = { 'a': [{ 'b': { 'c': 3 } }] };
-	 *
-	 * _.get(object, 'a[0].b.c');
-	 * // => 3
-	 *
-	 * _.get(object, ['a', '0', 'b', 'c']);
-	 * // => 3
-	 *
-	 * _.get(object, 'a.b.c', 'default');
-	 * // => 'default'
-	 */
-	function get(object, path, defaultValue) {
-	  var result = object == null ? undefined : baseGet(object, path);
-	  return result === undefined ? defaultValue : result;
-	}
-
-	module.exports = get;
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ }),
-/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10163,11 +9357,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _PageButton = __webpack_require__(43);
+	var _PageButton = __webpack_require__(42);
 
 	var _PageButton2 = _interopRequireDefault(_PageButton);
 
-	var _SizePerPageDropDown = __webpack_require__(44);
+	var _SizePerPageDropDown = __webpack_require__(43);
 
 	var _SizePerPageDropDown2 = _interopRequireDefault(_SizePerPageDropDown);
 
@@ -10421,25 +9615,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      if (dropdownProps || !dropdown) {
+	        var isBootstrap4 = _util2.default.isBootstrap4(this.props.version);
 	        var sizePerPageOptions = sizePerPageList.map(function (_sizePerPage) {
 	          var pageText = _sizePerPage.text || _sizePerPage;
 	          var pageNum = _sizePerPage.value || _sizePerPage;
 	          if (sizePerPage === pageNum) sizePerPageText = pageText;
-	          return _react2.default.createElement(
-	            'li',
-	            { key: pageText, role: 'presentation', className: 'dropdown-item' },
-	            _react2.default.createElement(
+	          if (isBootstrap4) {
+	            return _react2.default.createElement(
 	              'a',
-	              { role: 'menuitem',
-	                tabIndex: '-1', href: '#',
-	                'data-page': pageNum,
+	              {
+	                href: '#',
+	                tabIndex: '-1',
+	                key: pageText,
+	                className: 'dropdown-item',
 	                onMouseDown: function onMouseDown(e) {
 	                  e.preventDefault();
 	                  _this3.changeSizePerPage(pageNum);
 	                } },
 	              pageText
-	            )
-	          );
+	            );
+	          } else {
+	            return _react2.default.createElement(
+	              'li',
+	              { key: pageText, role: 'presentation', className: 'dropdown-item' },
+	              _react2.default.createElement(
+	                'a',
+	                { role: 'menuitem',
+	                  tabIndex: '-1', href: '#',
+	                  'data-page': pageNum,
+	                  onMouseDown: function onMouseDown(e) {
+	                    e.preventDefault();
+	                    _this3.changeSizePerPage(pageNum);
+	                  } },
+	                pageText
+	              )
+	            );
+	          }
 	        });
 	        dropdown = _react2.default.createElement(_SizePerPageDropDown2.default, _extends({
 	          open: this.state.open,
@@ -10447,7 +9658,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          currSizePerPage: String(sizePerPageText),
 	          options: sizePerPageOptions,
 	          onClick: this.toggleDropDown,
-	          onBlur: this.closeDropDown
+	          onBlur: this.closeDropDown,
+	          isBootstrap4: isBootstrap4
 	        }, dropdownProps));
 	      }
 	      return dropdown;
@@ -10478,28 +9690,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return true;
 	        }
 	        return isStart(page, this.props) || isEnd(page, this.props) ? false : true;
-	      }, this).map(function (page) {
+	      }, this).map(function (page, index) {
 	        var isActive = page === this.props.currPage;
 	        var isDisabled = isStart(page, this.props) || isEnd(page, this.props) ? true : false;
 	        var title = page + '';
+	        var pageNumber = page;
 
 	        if (page === this.props.nextPage) {
 	          title = this.props.nextPageTitle;
+	          pageNumber = this.props.currPage + 1;
 	        } else if (page === this.props.prePage) {
 	          title = this.props.prePageTitle;
+	          pageNumber = this.props.currPage - 1;
 	        } else if (page === this.props.firstPage) {
 	          title = this.props.firstPageTitle;
+	          pageNumber = this.props.pageStartIndex;
 	        } else if (page === this.props.lastPage) {
 	          title = this.props.lastPageTitle;
+	          pageNumber = this.getLastPage();
 	        }
 
 	        return _react2.default.createElement(
 	          _PageButton2.default,
-	          { key: page,
+	          { key: index,
 	            title: title,
 	            changePage: this.changePage,
 	            active: isActive,
-	            disable: isDisabled },
+	            disable: isDisabled,
+	            pageNumber: pageNumber },
 	          page
 	        );
 	      }, this);
@@ -10564,7 +9782,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  paginationShowsTotal: _propTypes2.default.oneOfType([_propTypes2.default.bool, _propTypes2.default.func]),
 	  paginationSize: _propTypes2.default.number,
 	  onSizePerPageList: _propTypes2.default.func,
-	  prePage: _propTypes2.default.string,
+	  prePage: _propTypes2.default.any,
+	  nextPage: _propTypes2.default.any,
+	  firstPage: _propTypes2.default.any,
+	  lastPage: _propTypes2.default.any,
 	  pageStartIndex: _propTypes2.default.number,
 	  hideSizePerPage: _propTypes2.default.bool,
 	  alwaysShowAllBtns: _propTypes2.default.bool,
@@ -10593,15 +9814,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(PaginationList, 'PaginationList', '/Users/gigo/projects/github/react-bootstrap-table/src/pagination/PaginationList.js');
+	  __REACT_HOT_LOADER__.register(PaginationList, 'PaginationList', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/pagination/PaginationList.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/pagination/PaginationList.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/pagination/PaginationList.js');
 	}();
 
 	;
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10656,7 +9877,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: '__pageBtnClick__REACT_HOT_LOADER__',
 	    value: function __pageBtnClick__REACT_HOT_LOADER__(e) {
 	      e.preventDefault();
-	      this.props.changePage(e.currentTarget.textContent);
+	      this.props.changePage(this.props.pageNumber);
 	    }
 	  }, {
 	    key: 'render',
@@ -10688,7 +9909,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  active: _propTypes2.default.bool,
 	  disable: _propTypes2.default.bool,
 	  hidden: _propTypes2.default.bool,
-	  children: _propTypes2.default.node
+	  children: _propTypes2.default.node,
+	  pageNumber: _propTypes2.default.number
 	};
 
 	var _default = PageButton;
@@ -10700,15 +9922,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(PageButton, 'PageButton', '/Users/gigo/projects/github/react-bootstrap-table/src/pagination/PageButton.js');
+	  __REACT_HOT_LOADER__.register(PageButton, 'PageButton', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/pagination/PageButton.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/pagination/PageButton.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/pagination/PageButton.js');
 	}();
 
 	;
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10758,21 +9980,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	          className = _props.className,
 	          variation = _props.variation,
 	          btnContextual = _props.btnContextual,
+	          isBootstrap4 = _props.isBootstrap4,
 	          currSizePerPage = _props.currSizePerPage;
 
 
+	      if (hidden) return null;
+
 	      var openClass = open ? 'open show' : '';
-	      var dropDownStyle = { visibility: hidden ? 'hidden' : 'visible' };
+
+	      var renderOptions = function renderOptions() {
+	        var attrs = {
+	          className: 'dropdown-menu ' + openClass,
+	          role: 'menu',
+	          'aria-labelledby': 'pageDropDown'
+	        };
+	        var type = isBootstrap4 ? 'div' : 'ul';
+
+	        return _react2.default.createElement(type, attrs, options);
+	      };
 
 	      return _react2.default.createElement(
 	        'span',
-	        { style: dropDownStyle,
+	        {
 	          className: variation + ' ' + openClass + ' ' + className + ' ' + sizePerPageDefaultClass },
 	        _react2.default.createElement(
 	          'button',
 	          { className: 'btn ' + btnContextual + ' dropdown-toggle',
 	            id: 'pageDropDown', 'data-toggle': 'dropdown',
 	            'aria-expanded': open,
+	            'aria-haspopup': !open,
 	            onClick: onClick,
 	            onBlur: onBlur },
 	          currSizePerPage,
@@ -10783,11 +10019,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _react2.default.createElement('span', { className: 'caret' })
 	          )
 	        ),
-	        _react2.default.createElement(
-	          'ul',
-	          { className: 'dropdown-menu', role: 'menu', 'aria-labelledby': 'pageDropDown' },
-	          options
-	        )
+	        renderOptions()
 	      );
 	    }
 	  }]);
@@ -10823,17 +10055,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(sizePerPageDefaultClass, 'sizePerPageDefaultClass', '/Users/gigo/projects/github/react-bootstrap-table/src/pagination/SizePerPageDropDown.js');
+	  __REACT_HOT_LOADER__.register(sizePerPageDefaultClass, 'sizePerPageDefaultClass', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/pagination/SizePerPageDropDown.js');
 
-	  __REACT_HOT_LOADER__.register(SizePerPageDropDown, 'SizePerPageDropDown', '/Users/gigo/projects/github/react-bootstrap-table/src/pagination/SizePerPageDropDown.js');
+	  __REACT_HOT_LOADER__.register(SizePerPageDropDown, 'SizePerPageDropDown', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/pagination/SizePerPageDropDown.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/pagination/SizePerPageDropDown.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/pagination/SizePerPageDropDown.js');
 	}();
 
 	;
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10856,7 +10088,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _reactModal = __webpack_require__(46);
+	var _reactModal = __webpack_require__(45);
 
 	var _reactModal2 = _interopRequireDefault(_reactModal);
 
@@ -11462,6 +10694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _reactModal2.default,
 	        { className: 'react-bs-insert-modal modal-dialog',
 	          isOpen: this.state.isInsertModalOpen,
+	          ariaHideApp: false,
 	          onRequestClose: this.handleModalClose,
 	          contentLabel: 'Modal' },
 	        modal
@@ -11548,15 +10781,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(ToolBar, 'ToolBar', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ToolBar.js');
+	  __REACT_HOT_LOADER__.register(ToolBar, 'ToolBar', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ToolBar.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ToolBar.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ToolBar.js');
 	}();
 
 	;
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11565,7 +10798,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _Modal = __webpack_require__(47);
+	var _Modal = __webpack_require__(46);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -11575,7 +10808,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11601,11 +10834,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _ModalPortal = __webpack_require__(48);
+	var _ModalPortal = __webpack_require__(47);
 
 	var _ModalPortal2 = _interopRequireDefault(_ModalPortal);
 
-	var _ariaAppHider = __webpack_require__(52);
+	var _ariaAppHider = __webpack_require__(51);
 
 	var ariaAppHider = _interopRequireWildcard(_ariaAppHider);
 
@@ -11759,15 +10992,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }),
 	  portalClassName: _propTypes2.default.string,
 	  bodyOpenClassName: _propTypes2.default.string,
-	  className: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.object]),
-	  overlayClassName: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.object]),
+	  className: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.shape({
+	    base: _propTypes2.default.string.isRequired,
+	    afterOpen: _propTypes2.default.string.isRequired,
+	    beforeClose: _propTypes2.default.string.isRequired
+	  })]),
+	  overlayClassName: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.shape({
+	    base: _propTypes2.default.string.isRequired,
+	    afterOpen: _propTypes2.default.string.isRequired,
+	    beforeClose: _propTypes2.default.string.isRequired
+	  })]),
 	  appElement: _propTypes2.default.instanceOf(_safeHTMLElement2.default),
 	  onAfterOpen: _propTypes2.default.func,
 	  onRequestClose: _propTypes2.default.func,
 	  closeTimeoutMS: _propTypes2.default.number,
 	  ariaHideApp: _propTypes2.default.bool,
-	  shouldFocusAfter: _propTypes2.default.bool,
+	  shouldFocusAfterRender: _propTypes2.default.bool,
 	  shouldCloseOnOverlayClick: _propTypes2.default.bool,
+	  shouldReturnFocusAfterClose: _propTypes2.default.bool,
 	  parentSelector: _propTypes2.default.func,
 	  aria: _propTypes2.default.object,
 	  role: _propTypes2.default.string,
@@ -11783,6 +11025,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  shouldFocusAfterRender: true,
 	  shouldCloseOnEsc: true,
 	  shouldCloseOnOverlayClick: true,
+	  shouldReturnFocusAfterClose: true,
 	  parentSelector: function parentSelector() {
 	    return document.body;
 	  }
@@ -11814,7 +11057,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Modal;
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {"use strict";
@@ -11837,15 +11080,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _focusManager = __webpack_require__(49);
+	var _focusManager = __webpack_require__(48);
 
 	var focusManager = _interopRequireWildcard(_focusManager);
 
-	var _scopeTab = __webpack_require__(51);
+	var _scopeTab = __webpack_require__(50);
 
 	var _scopeTab2 = _interopRequireDefault(_scopeTab);
 
-	var _ariaAppHider = __webpack_require__(52);
+	var _ariaAppHider = __webpack_require__(51);
 
 	var ariaAppHider = _interopRequireWildcard(_ariaAppHider);
 
@@ -11901,8 +11144,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    _this.afterClose = function () {
-	      focusManager.returnFocus();
-	      focusManager.teardownScopedFocus();
+	      var _this$props = _this.props,
+	          appElement = _this$props.appElement,
+	          ariaHideApp = _this$props.ariaHideApp;
+
+	      // Remove body class
+
+	      bodyClassList.remove(_this.props.bodyOpenClassName);
+
+	      // Reset aria-hidden attribute if all modals have been removed
+	      if (ariaHideApp && refCount.totalCount() < 1) {
+	        ariaAppHider.show(appElement);
+	      }
+
+	      if (_this.props.shouldFocusAfterRender) {
+	        if (_this.props.shouldReturnFocusAfterClose) {
+	          focusManager.returnFocus();
+	          focusManager.teardownScopedFocus();
+	        } else {
+	          focusManager.popWithoutFocus();
+	        }
+	      }
 	    };
 
 	    _this.open = function () {
@@ -11911,8 +11173,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        clearTimeout(_this.closeTimer);
 	        _this.setState({ beforeClose: false });
 	      } else {
-	        focusManager.setupScopedFocus(_this.node);
-	        focusManager.markForFocusLater();
+	        if (_this.props.shouldFocusAfterRender) {
+	          focusManager.setupScopedFocus(_this.node);
+	          focusManager.markForFocusLater();
+	        }
+
 	        _this.setState({ isOpen: true }, function () {
 	          _this.setState({ afterOpen: true });
 
@@ -11924,7 +11189,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    _this.close = function () {
-	      _this.beforeClose();
 	      if (_this.props.closeTimeoutMS > 0) {
 	        _this.closeWithTimeout();
 	      } else {
@@ -11989,7 +11253,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      _this.shouldClose = false;
 	    };
 
-	    _this.handleOverlayOnMouseDown = function () {
+	    _this.handleOverlayOnMouseDown = function (event) {
+	      if (!_this.props.shouldCloseOnOverlayClick && event.target == _this.overlay) {
+	        event.preventDefault();
+	      }
 	      _this.moveFromContentToOverlay = false;
 	    };
 
@@ -12088,7 +11355,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: "componentWillUnmount",
 	    value: function componentWillUnmount() {
-	      this.beforeClose();
+	      this.afterClose();
 	      clearTimeout(this.closeTimer);
 	    }
 	  }, {
@@ -12106,31 +11373,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        ariaAppHider.hide(appElement);
 	      }
 	    }
-	  }, {
-	    key: "beforeClose",
-	    value: function beforeClose() {
-	      var _props2 = this.props,
-	          appElement = _props2.appElement,
-	          ariaHideApp = _props2.ariaHideApp,
-	          bodyOpenClassName = _props2.bodyOpenClassName;
-	      // Remove class if no more modals are open
-
-	      bodyClassList.remove(bodyOpenClassName);
-	      // Reset aria-hidden attribute if all modals have been removed
-	      if (ariaHideApp && refCount.totalCount() < 1) {
-	        ariaAppHider.show(appElement);
-	      }
-	    }
 
 	    // Don't steal focus from inner elements
 
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      var _props3 = this.props,
-	          className = _props3.className,
-	          overlayClassName = _props3.overlayClassName,
-	          defaultStyles = _props3.defaultStyles;
+	      var _props2 = this.props,
+	          className = _props2.className,
+	          overlayClassName = _props2.overlayClassName,
+	          defaultStyles = _props2.defaultStyles;
 
 	      var contentStyles = className ? {} : defaultStyles.content;
 	      var overlayStyles = overlayClassName ? {} : defaultStyles.overlay;
@@ -12143,7 +11395,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          style: _extends({}, overlayStyles, this.props.style.overlay),
 	          onClick: this.handleOverlayOnClick,
 	          onMouseDown: this.handleOverlayOnMouseDown,
-	          onMouseUp: this.handleOverlayOnMouseUp
+	          onMouseUp: this.handleOverlayOnMouseUp,
+	          "aria-modal": "true"
 	        },
 	        _react2.default.createElement(
 	          "div",
@@ -12194,6 +11447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  closeTimeoutMS: _propTypes2.default.number,
 	  shouldFocusAfterRender: _propTypes2.default.bool,
 	  shouldCloseOnOverlayClick: _propTypes2.default.bool,
+	  shouldReturnFocusAfterClose: _propTypes2.default.bool,
 	  role: _propTypes2.default.string,
 	  contentLabel: _propTypes2.default.string,
 	  aria: _propTypes2.default.object,
@@ -12205,7 +11459,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12217,10 +11471,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.handleFocus = handleFocus;
 	exports.markForFocusLater = markForFocusLater;
 	exports.returnFocus = returnFocus;
+	exports.popWithoutFocus = popWithoutFocus;
 	exports.setupScopedFocus = setupScopedFocus;
 	exports.teardownScopedFocus = teardownScopedFocus;
 
-	var _tabbable = __webpack_require__(50);
+	var _tabbable = __webpack_require__(49);
 
 	var _tabbable2 = _interopRequireDefault(_tabbable);
 
@@ -12272,6 +11527,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	/* eslint-enable no-console */
 
+	function popWithoutFocus() {
+	  focusLaterElements.length > 0 && focusLaterElements.pop();
+	}
+
 	function setupScopedFocus(element) {
 	  modalElement = element;
 
@@ -12297,7 +11556,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -12320,15 +11579,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var tabbableNode = /input|select|textarea|button|object/;
 
-	function hidden(el) {
-	  return el.offsetWidth <= 0 && el.offsetHeight <= 0 || el.style.display === "none";
+	function hidesContents(element) {
+	  var zeroSize = element.offsetWidth <= 0 && element.offsetHeight <= 0;
+
+	  // If the node is empty, this is good enough
+	  if (zeroSize && !element.innerHTML) return true;
+
+	  // Otherwise we need to check some styles
+	  var style = window.getComputedStyle(element);
+	  return zeroSize ? style.getPropertyValue("overflow") !== "visible" : style.getPropertyValue("display") == "none";
 	}
 
 	function visible(element) {
 	  var parentElement = element;
 	  while (parentElement) {
 	    if (parentElement === document.body) break;
-	    if (hidden(parentElement)) return false;
+	    if (hidesContents(parentElement)) return false;
 	    parentElement = parentElement.parentNode;
 	  }
 	  return true;
@@ -12353,7 +11619,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12363,7 +11629,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = scopeTab;
 
-	var _tabbable = __webpack_require__(50);
+	var _tabbable = __webpack_require__(49);
 
 	var _tabbable2 = _interopRequireDefault(_tabbable);
 
@@ -12371,24 +11637,70 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function scopeTab(node, event) {
 	  var tabbable = (0, _tabbable2.default)(node);
+
 	  if (!tabbable.length) {
+	    // Do nothing, since there are no elements that can receive focus.
 	    event.preventDefault();
 	    return;
 	  }
-	  var finalTabbable = tabbable[event.shiftKey ? 0 : tabbable.length - 1];
-	  var leavingFinalTabbable = finalTabbable === document.activeElement ||
-	  // handle immediate shift+tab after opening with mouse
-	  node === document.activeElement;
-	  if (!leavingFinalTabbable) return;
+
+	  var shiftKey = event.shiftKey;
+	  var head = tabbable[0];
+	  var tail = tabbable[tabbable.length - 1];
+
+	  // proceed with default browser behavior
+	  if (node === document.activeElement) {
+	    return;
+	  }
+
+	  var target;
+	  if (tail === document.activeElement && !shiftKey) {
+	    target = head;
+	  }
+
+	  if (head === document.activeElement && shiftKey) {
+	    target = tail;
+	  }
+
+	  if (target) {
+	    event.preventDefault();
+	    target.focus();
+	    return;
+	  }
+
+	  // Safari radio issue.
+	  //
+	  // Safari does not move the focus to the radio button,
+	  // so we need to force it to really walk through all elements.
+	  //
+	  // This is very error prune, since we are trying to guess
+	  // if it is a safari browser from the first occurence between
+	  // chrome or safari.
+	  //
+	  // The chrome user agent contains the first ocurrence
+	  // as the 'chrome/version' and later the 'safari/version'.
+	  var checkSafari = /(\bChrome\b|\bSafari\b)\//.exec(navigator.userAgent);
+	  var isSafariDesktop = checkSafari != null && checkSafari[1] != "Chrome" && /\biPod\b|\biPad\b/g.exec(navigator.userAgent) == null;
+
+	  // If we are not in safari desktop, let the browser control
+	  // the focus
+	  if (!isSafariDesktop) return;
+
+	  var x = tabbable.indexOf(document.activeElement);
+
+	  if (x > -1) {
+	    x += shiftKey ? -1 : 1;
+	  }
+
 	  event.preventDefault();
-	  var target = tabbable[event.shiftKey ? tabbable.length - 1 : 0];
-	  target.focus();
+
+	  tabbable[x].focus();
 	}
 	module.exports = exports["default"];
 
 /***/ }),
-/* 52 */
-/***/ (function(module, exports) {
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
@@ -12397,12 +11709,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.assertNodeList = assertNodeList;
 	exports.setElement = setElement;
-	exports.tryForceFallback = tryForceFallback;
 	exports.validateElement = validateElement;
 	exports.hide = hide;
 	exports.show = show;
 	exports.documentNotReadyOrSSRTesting = documentNotReadyOrSSRTesting;
 	exports.resetForTesting = resetForTesting;
+
+	var _warning = __webpack_require__(52);
+
+	var _warning2 = _interopRequireDefault(_warning);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	var globalElement = null;
 
 	function assertNodeList(nodeList, selector) {
@@ -12422,29 +11740,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return globalElement;
 	}
 
-	function tryForceFallback() {
-	  if (document && document.body) {
-	    // force fallback to document.body
-	    setElement(document.body);
-	    return true;
-	  }
-	  return false;
-	}
-
 	function validateElement(appElement) {
-	  if (!appElement && !globalElement && !tryForceFallback()) {
-	    throw new Error(["react-modal: Cannot fallback to `document.body`, because it is not", "ready or available. If you are doing server-side rendering, use this", "function to defined an element. `Modal.setAppElement(el)` to make", "this accessible"].join(" "));
+	  if (!appElement && !globalElement) {
+	    (0, _warning2.default)(false, ["react-modal: App element is not defined.", "Please use `Modal.setAppElement(el)` or set `appElement={el}`.", "This is needed so screen readers don't see main content", "when modal is opened. It is not recommended, but you can opt-out", "by setting `ariaHideApp={false}`."].join(" "));
+
+	    return false;
 	  }
+
+	  return true;
 	}
 
 	function hide(appElement) {
-	  validateElement(appElement);
-	  (appElement || globalElement).setAttribute("aria-hidden", "true");
+	  if (validateElement(appElement)) {
+	    (appElement || globalElement).setAttribute("aria-hidden", "true");
+	  }
 	}
 
 	function show(appElement) {
-	  validateElement(appElement);
-	  (appElement || globalElement).removeAttribute("aria-hidden");
+	  if (validateElement(appElement)) {
+	    (appElement || globalElement).removeAttribute("aria-hidden");
+	  }
 	}
 
 	function documentNotReadyOrSSRTesting() {
@@ -12452,8 +11767,75 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	function resetForTesting() {
-	  globalElement = document.body;
+	  globalElement = null;
 	}
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2014-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 */
+
+	'use strict';
+
+	/**
+	 * Similar to invariant but only logs a warning if the condition is not met.
+	 * This can be used to log issues in development environments in critical
+	 * paths. Removing the logging code for production environments will keep the
+	 * same logic and follow the same code paths.
+	 */
+
+	var warning = function() {};
+
+	if (process.env.NODE_ENV !== 'production') {
+	  warning = function(condition, format, args) {
+	    var len = arguments.length;
+	    args = new Array(len > 2 ? len - 2 : 0);
+	    for (var key = 2; key < len; key++) {
+	      args[key - 2] = arguments[key];
+	    }
+	    if (format === undefined) {
+	      throw new Error(
+	        '`warning(condition, format, ...args)` requires a warning ' +
+	        'message argument'
+	      );
+	    }
+
+	    if (format.length < 10 || (/^[s\W]*$/).test(format)) {
+	      throw new Error(
+	        'The warning format should be able to uniquely identify this ' +
+	        'warning. Please, use a more descriptive format than: ' + format
+	      );
+	    }
+
+	    if (!condition) {
+	      var argIndex = 0;
+	      var message = 'Warning: ' +
+	        format.replace(/%s/g, function() {
+	          return args[argIndex++];
+	        });
+	      if (typeof console !== 'undefined') {
+	        console.error(message);
+	      }
+	      try {
+	        // This error was thrown as a convenience so that you can use this stack
+	        // to find the callsite that caused this warning to fire.
+	        throw new Error(message);
+	      } catch(x) {}
+	    }
+	  };
+	}
+
+	module.exports = warning;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
 /* 53 */
@@ -12793,11 +12175,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(defaultModalClassName, 'defaultModalClassName', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModal.js');
+	  __REACT_HOT_LOADER__.register(defaultModalClassName, 'defaultModalClassName', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModal.js');
 
-	  __REACT_HOT_LOADER__.register(InsertModal, 'InsertModal', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModal.js');
+	  __REACT_HOT_LOADER__.register(InsertModal, 'InsertModal', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModal.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModal.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModal.js');
 	}();
 
 	;
@@ -12957,9 +12339,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(InsertModalHeader, 'InsertModalHeader', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModalHeader.js');
+	  __REACT_HOT_LOADER__.register(InsertModalHeader, 'InsertModalHeader', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModalHeader.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModalHeader.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModalHeader.js');
 	}();
 
 	;
@@ -13128,9 +12510,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(InsertModalFooter, 'InsertModalFooter', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModalFooter.js');
+	  __REACT_HOT_LOADER__.register(InsertModalFooter, 'InsertModalFooter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModalFooter.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModalFooter.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModalFooter.js');
 	}();
 
 	;
@@ -13293,9 +12675,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(InsertModalBody, 'InsertModalBody', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModalBody.js');
+	  __REACT_HOT_LOADER__.register(InsertModalBody, 'InsertModalBody', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModalBody.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertModalBody.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertModalBody.js');
 	}();
 
 	;
@@ -13404,11 +12786,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(insertBtnDefaultClass, 'insertBtnDefaultClass', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertButton.js');
+	  __REACT_HOT_LOADER__.register(insertBtnDefaultClass, 'insertBtnDefaultClass', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertButton.js');
 
-	  __REACT_HOT_LOADER__.register(InsertButton, 'InsertButton', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertButton.js');
+	  __REACT_HOT_LOADER__.register(InsertButton, 'InsertButton', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertButton.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/InsertButton.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/InsertButton.js');
 	}();
 
 	;
@@ -13517,11 +12899,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(deleteBtnDefaultClass, 'deleteBtnDefaultClass', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/DeleteButton.js');
+	  __REACT_HOT_LOADER__.register(deleteBtnDefaultClass, 'deleteBtnDefaultClass', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/DeleteButton.js');
 
-	  __REACT_HOT_LOADER__.register(DeleteButton, 'DeleteButton', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/DeleteButton.js');
+	  __REACT_HOT_LOADER__.register(DeleteButton, 'DeleteButton', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/DeleteButton.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/DeleteButton.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/DeleteButton.js');
 	}();
 
 	;
@@ -13630,11 +13012,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(exportCsvBtnDefaultClass, 'exportCsvBtnDefaultClass', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ExportCSVButton.js');
+	  __REACT_HOT_LOADER__.register(exportCsvBtnDefaultClass, 'exportCsvBtnDefaultClass', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ExportCSVButton.js');
 
-	  __REACT_HOT_LOADER__.register(ExportCSVButton, 'ExportCSVButton', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ExportCSVButton.js');
+	  __REACT_HOT_LOADER__.register(ExportCSVButton, 'ExportCSVButton', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ExportCSVButton.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ExportCSVButton.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ExportCSVButton.js');
 	}();
 
 	;
@@ -13746,11 +13128,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(showSelectedOnlyBtnDefaultClass, 'showSelectedOnlyBtnDefaultClass', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ShowSelectedOnlyButton.js');
+	  __REACT_HOT_LOADER__.register(showSelectedOnlyBtnDefaultClass, 'showSelectedOnlyBtnDefaultClass', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ShowSelectedOnlyButton.js');
 
-	  __REACT_HOT_LOADER__.register(ShowSelectedOnlyButton, 'ShowSelectedOnlyButton', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ShowSelectedOnlyButton.js');
+	  __REACT_HOT_LOADER__.register(ShowSelectedOnlyButton, 'ShowSelectedOnlyButton', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ShowSelectedOnlyButton.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ShowSelectedOnlyButton.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ShowSelectedOnlyButton.js');
 	}();
 
 	;
@@ -13856,9 +13238,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(SearchField, 'SearchField', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/SearchField.js');
+	  __REACT_HOT_LOADER__.register(SearchField, 'SearchField', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/SearchField.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/SearchField.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/SearchField.js');
 	}();
 
 	;
@@ -13959,11 +13341,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(clearBtnDefaultClass, 'clearBtnDefaultClass', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ClearSearchButton.js');
+	  __REACT_HOT_LOADER__.register(clearBtnDefaultClass, 'clearBtnDefaultClass', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ClearSearchButton.js');
 
-	  __REACT_HOT_LOADER__.register(ClearSearchButton, 'ClearSearchButton', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ClearSearchButton.js');
+	  __REACT_HOT_LOADER__.register(ClearSearchButton, 'ClearSearchButton', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ClearSearchButton.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ClearSearchButton.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ClearSearchButton.js');
 	}();
 
 	;
@@ -14122,9 +13504,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableFilter, 'TableFilter', '/Users/gigo/projects/github/react-bootstrap-table/src/TableFilter.js');
+	  __REACT_HOT_LOADER__.register(TableFilter, 'TableFilter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableFilter.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/TableFilter.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/TableFilter.js');
 	}();
 
 	;
@@ -14152,14 +13534,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _Const = __webpack_require__(22);
 
 	var _Const2 = _interopRequireDefault(_Const);
-
-	var _lodash = __webpack_require__(41);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	var _lodash3 = __webpack_require__(69);
-
-	var _lodash4 = _interopRequireDefault(_lodash3);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -14395,10 +13769,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var currentDisplayData = this.getCurrentDisplayData();
 	      var rowKeyCache = void 0;
 	      if (!this.enablePagination) {
-	        (0, _lodash4.default)(currentDisplayData[rowIndex], fieldName, newVal);
+	        currentDisplayData[rowIndex][fieldName] = newVal;
 	        rowKeyCache = currentDisplayData[rowIndex][this.keyField];
 	      } else {
-	        (0, _lodash4.default)(currentDisplayData[this.pageObj.start + rowIndex], fieldName, newVal);
+	        currentDisplayData[this.pageObj.start + rowIndex][fieldName] = newVal;
 	        rowKeyCache = currentDisplayData[this.pageObj.start + rowIndex][this.keyField];
 	      }
 	      if (this.isOnFilter) {
@@ -14705,8 +14079,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var valid = true;
 	        var filterVal = void 0;
 	        for (var key in filterObj) {
-	          var targetVal = (0, _lodash2.default)(row, key, '');
-	          if (targetVal === null) {
+	          var targetVal = row[key];
+	          if (targetVal === null || targetVal === undefined) {
 	            targetVal = '';
 	          }
 
@@ -14759,9 +14133,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            formatExtraData = _this6.colInfos[key].formatExtraData;
 	            filterValue = _this6.colInfos[key].filterValue;
 	            if (filterFormatted && format) {
-	              targetVal = format(targetVal, row, formatExtraData, r);
+	              targetVal = format(row[key], row, formatExtraData, r);
 	            } else if (filterValue) {
-	              targetVal = filterValue(targetVal, row);
+	              targetVal = filterValue(row[key], row);
 	            }
 	          }
 
@@ -14855,11 +14229,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                filterValue = colInfo.filterValue,
 	                formatExtraData = colInfo.formatExtraData;
 
-	            var targetVal = (0, _lodash2.default)(row, key);
+	            var targetVal = void 0;
 	            if (filterFormatted && format) {
-	              targetVal = format(targetVal, row, formatExtraData, r);
+	              targetVal = format(row[key], row, formatExtraData, r);
 	            } else if (filterValue) {
-	              targetVal = filterValue(targetVal, row);
+	              targetVal = filterValue(row[key], row);
+	            } else {
+	              targetVal = row[key];
 	            }
 	            if (targetVal !== null && typeof targetVal !== 'undefined') {
 	              targetVal = targetVal.toString().toLowerCase();
@@ -14911,8 +14287,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          if (sortFunc) {
 	            result = sortFunc(a, b, sortDetails.order, sortDetails.sortField, sortFuncExtraData);
 	          } else {
-	            var valueA = (0, _lodash2.default)(a, sortDetails.sortField, '');
-	            var valueB = (0, _lodash2.default)(b, sortDetails.sortField, '');
+	            var valueA = a[sortDetails.sortField] == null ? '' : a[sortDetails.sortField];
+	            var valueB = b[sortDetails.sortField] == null ? '' : b[sortDetails.sortField];
 
 	            if (isDesc) {
 	              if (typeof valueB === 'string') {
@@ -15006,1010 +14382,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(TableDataStore, 'TableDataStore', '/Users/gigo/projects/github/react-bootstrap-table/src/store/TableDataStore.js');
+	  __REACT_HOT_LOADER__.register(TableDataStore, 'TableDataStore', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/store/TableDataStore.js');
 	}();
 
 	;
 
 /***/ }),
 /* 69 */
-/***/ (function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * lodash (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
-	 * Released under MIT license <https://lodash.com/license>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 */
-
-	/** Used as the `TypeError` message for "Functions" methods. */
-	var FUNC_ERROR_TEXT = 'Expected a function';
-
-	/** Used to stand-in for `undefined` hash values. */
-	var HASH_UNDEFINED = '__lodash_hash_undefined__';
-
-	/** Used as references for various `Number` constants. */
-	var INFINITY = 1 / 0,
-	    MAX_SAFE_INTEGER = 9007199254740991;
-
-	/** `Object#toString` result references. */
-	var funcTag = '[object Function]',
-	    genTag = '[object GeneratorFunction]',
-	    symbolTag = '[object Symbol]';
-
-	/** Used to match property names within property paths. */
-	var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
-	    reIsPlainProp = /^\w*$/,
-	    reLeadingDot = /^\./,
-	    rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
-
-	/**
-	 * Used to match `RegExp`
-	 * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
-	 */
-	var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-
-	/** Used to match backslashes in property paths. */
-	var reEscapeChar = /\\(\\)?/g;
-
-	/** Used to detect host constructors (Safari). */
-	var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-	/** Used to detect unsigned integer values. */
-	var reIsUint = /^(?:0|[1-9]\d*)$/;
-
-	/** Detect free variable `global` from Node.js. */
-	var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-
-	/** Detect free variable `self`. */
-	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-
-	/** Used as a reference to the global object. */
-	var root = freeGlobal || freeSelf || Function('return this')();
-
-	/**
-	 * Gets the value at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} [object] The object to query.
-	 * @param {string} key The key of the property to get.
-	 * @returns {*} Returns the property value.
-	 */
-	function getValue(object, key) {
-	  return object == null ? undefined : object[key];
-	}
-
-	/**
-	 * Checks if `value` is a host object in IE < 9.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
-	 */
-	function isHostObject(value) {
-	  // Many host objects are `Object` objects that can coerce to strings
-	  // despite having improperly defined `toString` methods.
-	  var result = false;
-	  if (value != null && typeof value.toString != 'function') {
-	    try {
-	      result = !!(value + '');
-	    } catch (e) {}
-	  }
-	  return result;
-	}
-
-	/** Used for built-in method references. */
-	var arrayProto = Array.prototype,
-	    funcProto = Function.prototype,
-	    objectProto = Object.prototype;
-
-	/** Used to detect overreaching core-js shims. */
-	var coreJsData = root['__core-js_shared__'];
-
-	/** Used to detect methods masquerading as native. */
-	var maskSrcKey = (function() {
-	  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
-	  return uid ? ('Symbol(src)_1.' + uid) : '';
-	}());
-
-	/** Used to resolve the decompiled source of functions. */
-	var funcToString = funcProto.toString;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-
-	/** Used to detect if a method is native. */
-	var reIsNative = RegExp('^' +
-	  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
-	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-	);
-
-	/** Built-in value references. */
-	var Symbol = root.Symbol,
-	    splice = arrayProto.splice;
-
-	/* Built-in method references that are verified to be native. */
-	var Map = getNative(root, 'Map'),
-	    nativeCreate = getNative(Object, 'create');
-
-	/** Used to convert symbols to primitives and strings. */
-	var symbolProto = Symbol ? Symbol.prototype : undefined,
-	    symbolToString = symbolProto ? symbolProto.toString : undefined;
-
-	/**
-	 * Creates a hash object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */
-	function Hash(entries) {
-	  var index = -1,
-	      length = entries ? entries.length : 0;
-
-	  this.clear();
-	  while (++index < length) {
-	    var entry = entries[index];
-	    this.set(entry[0], entry[1]);
-	  }
-	}
-
-	/**
-	 * Removes all key-value entries from the hash.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf Hash
-	 */
-	function hashClear() {
-	  this.__data__ = nativeCreate ? nativeCreate(null) : {};
-	}
-
-	/**
-	 * Removes `key` and its value from the hash.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf Hash
-	 * @param {Object} hash The hash to modify.
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */
-	function hashDelete(key) {
-	  return this.has(key) && delete this.__data__[key];
-	}
-
-	/**
-	 * Gets the hash value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */
-	function hashGet(key) {
-	  var data = this.__data__;
-	  if (nativeCreate) {
-	    var result = data[key];
-	    return result === HASH_UNDEFINED ? undefined : result;
-	  }
-	  return hasOwnProperty.call(data, key) ? data[key] : undefined;
-	}
-
-	/**
-	 * Checks if a hash value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf Hash
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */
-	function hashHas(key) {
-	  var data = this.__data__;
-	  return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
-	}
-
-	/**
-	 * Sets the hash `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the hash instance.
-	 */
-	function hashSet(key, value) {
-	  var data = this.__data__;
-	  data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED : value;
-	  return this;
-	}
-
-	// Add methods to `Hash`.
-	Hash.prototype.clear = hashClear;
-	Hash.prototype['delete'] = hashDelete;
-	Hash.prototype.get = hashGet;
-	Hash.prototype.has = hashHas;
-	Hash.prototype.set = hashSet;
-
-	/**
-	 * Creates an list cache object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */
-	function ListCache(entries) {
-	  var index = -1,
-	      length = entries ? entries.length : 0;
-
-	  this.clear();
-	  while (++index < length) {
-	    var entry = entries[index];
-	    this.set(entry[0], entry[1]);
-	  }
-	}
-
-	/**
-	 * Removes all key-value entries from the list cache.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf ListCache
-	 */
-	function listCacheClear() {
-	  this.__data__ = [];
-	}
-
-	/**
-	 * Removes `key` and its value from the list cache.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */
-	function listCacheDelete(key) {
-	  var data = this.__data__,
-	      index = assocIndexOf(data, key);
-
-	  if (index < 0) {
-	    return false;
-	  }
-	  var lastIndex = data.length - 1;
-	  if (index == lastIndex) {
-	    data.pop();
-	  } else {
-	    splice.call(data, index, 1);
-	  }
-	  return true;
-	}
-
-	/**
-	 * Gets the list cache value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */
-	function listCacheGet(key) {
-	  var data = this.__data__,
-	      index = assocIndexOf(data, key);
-
-	  return index < 0 ? undefined : data[index][1];
-	}
-
-	/**
-	 * Checks if a list cache value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf ListCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */
-	function listCacheHas(key) {
-	  return assocIndexOf(this.__data__, key) > -1;
-	}
-
-	/**
-	 * Sets the list cache `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the list cache instance.
-	 */
-	function listCacheSet(key, value) {
-	  var data = this.__data__,
-	      index = assocIndexOf(data, key);
-
-	  if (index < 0) {
-	    data.push([key, value]);
-	  } else {
-	    data[index][1] = value;
-	  }
-	  return this;
-	}
-
-	// Add methods to `ListCache`.
-	ListCache.prototype.clear = listCacheClear;
-	ListCache.prototype['delete'] = listCacheDelete;
-	ListCache.prototype.get = listCacheGet;
-	ListCache.prototype.has = listCacheHas;
-	ListCache.prototype.set = listCacheSet;
-
-	/**
-	 * Creates a map cache object to store key-value pairs.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */
-	function MapCache(entries) {
-	  var index = -1,
-	      length = entries ? entries.length : 0;
-
-	  this.clear();
-	  while (++index < length) {
-	    var entry = entries[index];
-	    this.set(entry[0], entry[1]);
-	  }
-	}
-
-	/**
-	 * Removes all key-value entries from the map.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf MapCache
-	 */
-	function mapCacheClear() {
-	  this.__data__ = {
-	    'hash': new Hash,
-	    'map': new (Map || ListCache),
-	    'string': new Hash
-	  };
-	}
-
-	/**
-	 * Removes `key` and its value from the map.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */
-	function mapCacheDelete(key) {
-	  return getMapData(this, key)['delete'](key);
-	}
-
-	/**
-	 * Gets the map value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */
-	function mapCacheGet(key) {
-	  return getMapData(this, key).get(key);
-	}
-
-	/**
-	 * Checks if a map value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf MapCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */
-	function mapCacheHas(key) {
-	  return getMapData(this, key).has(key);
-	}
-
-	/**
-	 * Sets the map `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the map cache instance.
-	 */
-	function mapCacheSet(key, value) {
-	  getMapData(this, key).set(key, value);
-	  return this;
-	}
-
-	// Add methods to `MapCache`.
-	MapCache.prototype.clear = mapCacheClear;
-	MapCache.prototype['delete'] = mapCacheDelete;
-	MapCache.prototype.get = mapCacheGet;
-	MapCache.prototype.has = mapCacheHas;
-	MapCache.prototype.set = mapCacheSet;
-
-	/**
-	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
-	 * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * for equality comparisons.
-	 *
-	 * @private
-	 * @param {Object} object The object to modify.
-	 * @param {string} key The key of the property to assign.
-	 * @param {*} value The value to assign.
-	 */
-	function assignValue(object, key, value) {
-	  var objValue = object[key];
-	  if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
-	      (value === undefined && !(key in object))) {
-	    object[key] = value;
-	  }
-	}
-
-	/**
-	 * Gets the index at which the `key` is found in `array` of key-value pairs.
-	 *
-	 * @private
-	 * @param {Array} array The array to inspect.
-	 * @param {*} key The key to search for.
-	 * @returns {number} Returns the index of the matched value, else `-1`.
-	 */
-	function assocIndexOf(array, key) {
-	  var length = array.length;
-	  while (length--) {
-	    if (eq(array[length][0], key)) {
-	      return length;
-	    }
-	  }
-	  return -1;
-	}
-
-	/**
-	 * The base implementation of `_.isNative` without bad shim checks.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a native function,
-	 *  else `false`.
-	 */
-	function baseIsNative(value) {
-	  if (!isObject(value) || isMasked(value)) {
-	    return false;
-	  }
-	  var pattern = (isFunction(value) || isHostObject(value)) ? reIsNative : reIsHostCtor;
-	  return pattern.test(toSource(value));
-	}
-
-	/**
-	 * The base implementation of `_.set`.
-	 *
-	 * @private
-	 * @param {Object} object The object to modify.
-	 * @param {Array|string} path The path of the property to set.
-	 * @param {*} value The value to set.
-	 * @param {Function} [customizer] The function to customize path creation.
-	 * @returns {Object} Returns `object`.
-	 */
-	function baseSet(object, path, value, customizer) {
-	  if (!isObject(object)) {
-	    return object;
-	  }
-	  path = isKey(path, object) ? [path] : castPath(path);
-
-	  var index = -1,
-	      length = path.length,
-	      lastIndex = length - 1,
-	      nested = object;
-
-	  while (nested != null && ++index < length) {
-	    var key = toKey(path[index]),
-	        newValue = value;
-
-	    if (index != lastIndex) {
-	      var objValue = nested[key];
-	      newValue = customizer ? customizer(objValue, key, nested) : undefined;
-	      if (newValue === undefined) {
-	        newValue = isObject(objValue)
-	          ? objValue
-	          : (isIndex(path[index + 1]) ? [] : {});
-	      }
-	    }
-	    assignValue(nested, key, newValue);
-	    nested = nested[key];
-	  }
-	  return object;
-	}
-
-	/**
-	 * The base implementation of `_.toString` which doesn't convert nullish
-	 * values to empty strings.
-	 *
-	 * @private
-	 * @param {*} value The value to process.
-	 * @returns {string} Returns the string.
-	 */
-	function baseToString(value) {
-	  // Exit early for strings to avoid a performance hit in some environments.
-	  if (typeof value == 'string') {
-	    return value;
-	  }
-	  if (isSymbol(value)) {
-	    return symbolToString ? symbolToString.call(value) : '';
-	  }
-	  var result = (value + '');
-	  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
-	}
-
-	/**
-	 * Casts `value` to a path array if it's not one.
-	 *
-	 * @private
-	 * @param {*} value The value to inspect.
-	 * @returns {Array} Returns the cast property path array.
-	 */
-	function castPath(value) {
-	  return isArray(value) ? value : stringToPath(value);
-	}
-
-	/**
-	 * Gets the data for `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to query.
-	 * @param {string} key The reference key.
-	 * @returns {*} Returns the map data.
-	 */
-	function getMapData(map, key) {
-	  var data = map.__data__;
-	  return isKeyable(key)
-	    ? data[typeof key == 'string' ? 'string' : 'hash']
-	    : data.map;
-	}
-
-	/**
-	 * Gets the native function at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {string} key The key of the method to get.
-	 * @returns {*} Returns the function if it's native, else `undefined`.
-	 */
-	function getNative(object, key) {
-	  var value = getValue(object, key);
-	  return baseIsNative(value) ? value : undefined;
-	}
-
-	/**
-	 * Checks if `value` is a valid array-like index.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
-	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
-	 */
-	function isIndex(value, length) {
-	  length = length == null ? MAX_SAFE_INTEGER : length;
-	  return !!length &&
-	    (typeof value == 'number' || reIsUint.test(value)) &&
-	    (value > -1 && value % 1 == 0 && value < length);
-	}
-
-	/**
-	 * Checks if `value` is a property name and not a property path.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {Object} [object] The object to query keys on.
-	 * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
-	 */
-	function isKey(value, object) {
-	  if (isArray(value)) {
-	    return false;
-	  }
-	  var type = typeof value;
-	  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
-	      value == null || isSymbol(value)) {
-	    return true;
-	  }
-	  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
-	    (object != null && value in Object(object));
-	}
-
-	/**
-	 * Checks if `value` is suitable for use as unique object key.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
-	 */
-	function isKeyable(value) {
-	  var type = typeof value;
-	  return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
-	    ? (value !== '__proto__')
-	    : (value === null);
-	}
-
-	/**
-	 * Checks if `func` has its source masked.
-	 *
-	 * @private
-	 * @param {Function} func The function to check.
-	 * @returns {boolean} Returns `true` if `func` is masked, else `false`.
-	 */
-	function isMasked(func) {
-	  return !!maskSrcKey && (maskSrcKey in func);
-	}
-
-	/**
-	 * Converts `string` to a property path array.
-	 *
-	 * @private
-	 * @param {string} string The string to convert.
-	 * @returns {Array} Returns the property path array.
-	 */
-	var stringToPath = memoize(function(string) {
-	  string = toString(string);
-
-	  var result = [];
-	  if (reLeadingDot.test(string)) {
-	    result.push('');
-	  }
-	  string.replace(rePropName, function(match, number, quote, string) {
-	    result.push(quote ? string.replace(reEscapeChar, '$1') : (number || match));
-	  });
-	  return result;
-	});
-
-	/**
-	 * Converts `value` to a string key if it's not a string or symbol.
-	 *
-	 * @private
-	 * @param {*} value The value to inspect.
-	 * @returns {string|symbol} Returns the key.
-	 */
-	function toKey(value) {
-	  if (typeof value == 'string' || isSymbol(value)) {
-	    return value;
-	  }
-	  var result = (value + '');
-	  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
-	}
-
-	/**
-	 * Converts `func` to its source code.
-	 *
-	 * @private
-	 * @param {Function} func The function to process.
-	 * @returns {string} Returns the source code.
-	 */
-	function toSource(func) {
-	  if (func != null) {
-	    try {
-	      return funcToString.call(func);
-	    } catch (e) {}
-	    try {
-	      return (func + '');
-	    } catch (e) {}
-	  }
-	  return '';
-	}
-
-	/**
-	 * Creates a function that memoizes the result of `func`. If `resolver` is
-	 * provided, it determines the cache key for storing the result based on the
-	 * arguments provided to the memoized function. By default, the first argument
-	 * provided to the memoized function is used as the map cache key. The `func`
-	 * is invoked with the `this` binding of the memoized function.
-	 *
-	 * **Note:** The cache is exposed as the `cache` property on the memoized
-	 * function. Its creation may be customized by replacing the `_.memoize.Cache`
-	 * constructor with one whose instances implement the
-	 * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
-	 * method interface of `delete`, `get`, `has`, and `set`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Function
-	 * @param {Function} func The function to have its output memoized.
-	 * @param {Function} [resolver] The function to resolve the cache key.
-	 * @returns {Function} Returns the new memoized function.
-	 * @example
-	 *
-	 * var object = { 'a': 1, 'b': 2 };
-	 * var other = { 'c': 3, 'd': 4 };
-	 *
-	 * var values = _.memoize(_.values);
-	 * values(object);
-	 * // => [1, 2]
-	 *
-	 * values(other);
-	 * // => [3, 4]
-	 *
-	 * object.a = 2;
-	 * values(object);
-	 * // => [1, 2]
-	 *
-	 * // Modify the result cache.
-	 * values.cache.set(object, ['a', 'b']);
-	 * values(object);
-	 * // => ['a', 'b']
-	 *
-	 * // Replace `_.memoize.Cache`.
-	 * _.memoize.Cache = WeakMap;
-	 */
-	function memoize(func, resolver) {
-	  if (typeof func != 'function' || (resolver && typeof resolver != 'function')) {
-	    throw new TypeError(FUNC_ERROR_TEXT);
-	  }
-	  var memoized = function() {
-	    var args = arguments,
-	        key = resolver ? resolver.apply(this, args) : args[0],
-	        cache = memoized.cache;
-
-	    if (cache.has(key)) {
-	      return cache.get(key);
-	    }
-	    var result = func.apply(this, args);
-	    memoized.cache = cache.set(key, result);
-	    return result;
-	  };
-	  memoized.cache = new (memoize.Cache || MapCache);
-	  return memoized;
-	}
-
-	// Assign cache to `_.memoize`.
-	memoize.Cache = MapCache;
-
-	/**
-	 * Performs a
-	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * comparison between two values to determine if they are equivalent.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
-	 * @example
-	 *
-	 * var object = { 'a': 1 };
-	 * var other = { 'a': 1 };
-	 *
-	 * _.eq(object, object);
-	 * // => true
-	 *
-	 * _.eq(object, other);
-	 * // => false
-	 *
-	 * _.eq('a', 'a');
-	 * // => true
-	 *
-	 * _.eq('a', Object('a'));
-	 * // => false
-	 *
-	 * _.eq(NaN, NaN);
-	 * // => true
-	 */
-	function eq(value, other) {
-	  return value === other || (value !== value && other !== other);
-	}
-
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */
-	var isArray = Array.isArray;
-
-	/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */
-	function isFunction(value) {
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 8-9 which returns 'object' for typed array and other constructors.
-	  var tag = isObject(value) ? objectToString.call(value) : '';
-	  return tag == funcTag || tag == genTag;
-	}
-
-	/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-
-	/**
-	 * Checks if `value` is classified as a `Symbol` primitive or object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
-	 * @example
-	 *
-	 * _.isSymbol(Symbol.iterator);
-	 * // => true
-	 *
-	 * _.isSymbol('abc');
-	 * // => false
-	 */
-	function isSymbol(value) {
-	  return typeof value == 'symbol' ||
-	    (isObjectLike(value) && objectToString.call(value) == symbolTag);
-	}
-
-	/**
-	 * Converts `value` to a string. An empty string is returned for `null`
-	 * and `undefined` values. The sign of `-0` is preserved.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to process.
-	 * @returns {string} Returns the string.
-	 * @example
-	 *
-	 * _.toString(null);
-	 * // => ''
-	 *
-	 * _.toString(-0);
-	 * // => '-0'
-	 *
-	 * _.toString([1, 2, 3]);
-	 * // => '1,2,3'
-	 */
-	function toString(value) {
-	  return value == null ? '' : baseToString(value);
-	}
-
-	/**
-	 * Sets the value at `path` of `object`. If a portion of `path` doesn't exist,
-	 * it's created. Arrays are created for missing index properties while objects
-	 * are created for all other missing properties. Use `_.setWith` to customize
-	 * `path` creation.
-	 *
-	 * **Note:** This method mutates `object`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 3.7.0
-	 * @category Object
-	 * @param {Object} object The object to modify.
-	 * @param {Array|string} path The path of the property to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns `object`.
-	 * @example
-	 *
-	 * var object = { 'a': [{ 'b': { 'c': 3 } }] };
-	 *
-	 * _.set(object, 'a[0].b.c', 4);
-	 * console.log(object.a[0].b.c);
-	 * // => 4
-	 *
-	 * _.set(object, ['x', '0', 'y', 'z'], 5);
-	 * console.log(object.x[0].y.z);
-	 * // => 5
-	 */
-	function set(object, path, value) {
-	  return object == null ? object : baseSet(object, path, value);
-	}
-
-	module.exports = set;
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ }),
-/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16033,7 +14412,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* eslint no-var: 0 */
 	/* eslint no-unused-vars: 0 */
 	if (_util2.default.canUseDOM()) {
-	  var filesaver = __webpack_require__(71);
+	  var filesaver = __webpack_require__(70);
 	  var saveAs = filesaver.saveAs;
 	}
 
@@ -16113,19 +14492,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(saveAs, 'saveAs', '/Users/gigo/projects/github/react-bootstrap-table/src/csv_export_util.js');
+	  __REACT_HOT_LOADER__.register(saveAs, 'saveAs', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/csv_export_util.js');
 
-	  __REACT_HOT_LOADER__.register(toString, 'toString', '/Users/gigo/projects/github/react-bootstrap-table/src/csv_export_util.js');
+	  __REACT_HOT_LOADER__.register(toString, 'toString', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/csv_export_util.js');
 
-	  __REACT_HOT_LOADER__.register(exportCSV, 'exportCSV', '/Users/gigo/projects/github/react-bootstrap-table/src/csv_export_util.js');
+	  __REACT_HOT_LOADER__.register(exportCSV, 'exportCSV', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/csv_export_util.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/csv_export_util.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/csv_export_util.js');
 	}();
 
 	;
 
 /***/ }),
-/* 71 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
@@ -16305,7 +14684,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	if (typeof module !== "undefined" && module.exports) {
 		module.exports.saveAs = saveAs;
-	} else if ("function" !== "undefined" && __webpack_require__(72) !== null && __webpack_require__(73) !== null) {
+	} else if ("function" !== "undefined" && __webpack_require__(71) !== null && __webpack_require__(72) !== null) {
 		!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 			return saveAs;
 		}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -16317,20 +14696,20 @@ return /******/ (function(modules) { // webpackBootstrap
 			return;
 		}
 
-		__REACT_HOT_LOADER__.register(saveAs, "saveAs", "/Users/gigo/projects/github/react-bootstrap-table/src/filesaver.js");
+		__REACT_HOT_LOADER__.register(saveAs, "saveAs", "/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/filesaver.js");
 	}();
 
 	;
 
 /***/ }),
-/* 72 */
+/* 71 */
 /***/ (function(module, exports) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ }),
-/* 73 */
+/* 72 */
 /***/ (function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -16338,7 +14717,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ }),
-/* 74 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16356,7 +14735,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _Const2 = _interopRequireDefault(_Const);
 
-	var _events = __webpack_require__(75);
+	var _events = __webpack_require__(74);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -16421,13 +14800,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(Filter, 'Filter', '/Users/gigo/projects/github/react-bootstrap-table/src/Filter.js');
+	  __REACT_HOT_LOADER__.register(Filter, 'Filter', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/Filter.js');
 	}();
 
 	;
 
 /***/ }),
-/* 75 */
+/* 74 */
 /***/ (function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -16735,7 +15114,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 76 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16813,9 +15192,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 
-	  __REACT_HOT_LOADER__.register(ButtonGroup, 'ButtonGroup', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ButtonGroup.js');
+	  __REACT_HOT_LOADER__.register(ButtonGroup, 'ButtonGroup', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ButtonGroup.js');
 
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/gigo/projects/github/react-bootstrap-table/src/toolbar/ButtonGroup.js');
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/Users/allen/Node/react-bootstrap-table-new/react-bootstrap-table/src/toolbar/ButtonGroup.js');
 	}();
 
 	;

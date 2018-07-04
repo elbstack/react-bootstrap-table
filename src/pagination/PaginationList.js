@@ -178,21 +178,36 @@ class PaginationList extends Component {
     }
 
     if (dropdownProps || !dropdown) {
+      const isBootstrap4 = Util.isBootstrap4(this.props.version);
       const sizePerPageOptions = sizePerPageList.map((_sizePerPage) => {
         const pageText = _sizePerPage.text || _sizePerPage;
         const pageNum = _sizePerPage.value || _sizePerPage;
         if (sizePerPage === pageNum) sizePerPageText = pageText;
-        return (
-          <li key={ pageText } role='presentation' className='dropdown-item'>
-            <a role='menuitem'
-              tabIndex='-1' href='#'
-              data-page={ pageNum }
+        if (isBootstrap4) {
+          return (
+            <a
+              href='#'
+              tabIndex='-1'
+              key={ pageText }
+              className='dropdown-item'
               onMouseDown={ e => {
                 e.preventDefault();
                 this.changeSizePerPage(pageNum);
               } }>{ pageText }</a>
-          </li>
-        );
+          );
+        } else {
+          return (
+            <li key={ pageText } role='presentation' className='dropdown-item'>
+              <a role='menuitem'
+                tabIndex='-1' href='#'
+                data-page={ pageNum }
+                onMouseDown={ e => {
+                  e.preventDefault();
+                  this.changeSizePerPage(pageNum);
+                } }>{ pageText }</a>
+            </li>
+          );
+        }
       });
       dropdown = (
         <SizePerPageDropDown
@@ -202,6 +217,7 @@ class PaginationList extends Component {
           options={ sizePerPageOptions }
           onClick={ this.toggleDropDown }
           onBlur={ this.closeDropDown }
+          isBootstrap4={ isBootstrap4 }
           { ...dropdownProps }/>
       );
     }
@@ -223,29 +239,35 @@ class PaginationList extends Component {
           false :
           true;
       }, this)
-      .map(function(page) {
+      .map(function(page, index) {
         const isActive = page === this.props.currPage;
         const isDisabled = (isStart(page, this.props) || isEnd(page, this.props)) ?
           true :
           false;
         let title = page + '';
+        let pageNumber = page;
 
         if (page === this.props.nextPage) {
           title = this.props.nextPageTitle;
+          pageNumber = this.props.currPage + 1;
         } else if (page === this.props.prePage) {
           title = this.props.prePageTitle;
+          pageNumber = this.props.currPage - 1;
         } else if (page === this.props.firstPage) {
           title = this.props.firstPageTitle;
+          pageNumber = this.props.pageStartIndex;
         } else if (page === this.props.lastPage) {
           title = this.props.lastPageTitle;
+          pageNumber = this.getLastPage();
         }
 
         return (
-          <PageButton key={ page }
+          <PageButton key={ index }
             title={ title }
             changePage={ this.changePage }
             active={ isActive }
-            disable={ isDisabled }>
+            disable={ isDisabled }
+            pageNumber={ pageNumber }>
             { page }
           </PageButton>
         );
@@ -313,7 +335,10 @@ PaginationList.propTypes = {
   paginationShowsTotal: PropTypes.oneOfType([ PropTypes.bool, PropTypes.func ]),
   paginationSize: PropTypes.number,
   onSizePerPageList: PropTypes.func,
-  prePage: PropTypes.string,
+  prePage: PropTypes.any,
+  nextPage: PropTypes.any,
+  firstPage: PropTypes.any,
+  lastPage: PropTypes.any,
   pageStartIndex: PropTypes.number,
   hideSizePerPage: PropTypes.bool,
   alwaysShowAllBtns: PropTypes.bool,

@@ -44,11 +44,20 @@ class BootstrapTable extends Component {
     this._adjustHeaderWidth = this._adjustHeaderWidth.bind(this);
     this._adjustHeight = this._adjustHeight.bind(this);
     this._adjustTable = this._adjustTable.bind(this);
+    this.toggleExpandAllChilds = this.toggleExpandAllChilds.bind(this);
+
+    let expandedKeys = [];
+    if (this.props.options.expandAllChilds !== null &&
+      this.props.options.expandAllChilds !== undefined && this.props.options.expandAllChilds) {
+      expandedKeys = this.store.getAllRowkey();
+    } else if (this.props.options.expanding !== undefined && this.props.options.expanding !== null) {
+      expandedKeys = this.props.options.expanding;
+    }
 
     this.state = {
       data: this.getTableData(),
       currPage: currPage,
-      expanding: this.props.options.expanding || [],
+      expanding: expandedKeys,
       sizePerPage: this.props.options.sizePerPage || Const.SIZE_PER_PAGE_LIST[0],
       selectedRowKeys: this.store.getSelectedRowKeys(),
       reset: false,
@@ -445,7 +454,7 @@ class BootstrapTable extends Component {
     const { toolbarPosition = Const.TOOLBAR_POS_TOP } = this.props.options;
     const showToolbarOnTop = toolbarPosition !== Const.TOOLBAR_POS_BOTTOM;
     const showToolbarOnBottom = toolbarPosition !== Const.TOOLBAR_POS_TOP;
-
+    const { hideRowOnExpand = false } = this.props.options;
     return (
       <div className={ classSet('react-bs-table-container', this.props.className, this.props.containerClass) }
         style={ this.props.containerStyle }>
@@ -477,6 +486,10 @@ class BootstrapTable extends Component {
             reset={ this.state.reset }
             expandColumnVisible={ expandColumnOptions.expandColumnVisible }
             expandColumnComponent={ expandColumnOptions.expandColumnComponent }
+            expandedColumnHeaderComponent={ expandColumnOptions.expandedColumnHeaderComponent }
+            noAnyExpand={ this.state.expanding.length === 0 }
+            expandAll={ this.props.options.expandAll }
+            toggleExpandAllChilds={ this.toggleExpandAllChilds }
             expandColumnBeforeSelectColumn={ expandColumnOptions.expandColumnBeforeSelectColumn }>
             { this.props.children }
           </TableHeader>
@@ -521,6 +534,7 @@ class BootstrapTable extends Component {
             x={ this.state.x }
             y={ this.state.y }
             withoutTabIndex={ this.props.withoutTabIndex }
+            hideRowOnExpand={ hideRowOnExpand }
             onEditCell={ this.handleEditCell } />
             {
               tableFooter
@@ -625,6 +639,25 @@ class BootstrapTable extends Component {
     this.setState(() => { return { expanding, reset: false }; }, () => {
       this._adjustHeaderWidth();
     });
+  }
+
+  toggleExpandAllChilds() {
+    const { expanding } = this.state;
+    if (expanding.length > 0) {
+      this.setState(() => {
+        return {
+          expanding: [],
+          reset: false
+        };
+      });
+    } else {
+      this.setState(() => {
+        return {
+          expanding: this.store.getAllRowkey(),
+          reset: false
+        };
+      });
+    }
   }
 
   handlePaginationData = (page, sizePerPage) => {
@@ -1235,6 +1268,7 @@ class BootstrapTable extends Component {
         <div className='react-bs-table-pagination'>
           <PaginationList
             ref={ node => this.pagination = node }
+            version={ this.props.version }
             withFirstAndLast={ withFirstAndLast }
             alwaysShowAllBtns={ options.alwaysShowAllBtns }
             currPage={ this.state.currPage }
@@ -1704,7 +1738,9 @@ BootstrapTable.propTypes = {
     beforeShowError: PropTypes.func,
     printToolBar: PropTypes.bool,
     insertFailIndicator: PropTypes.string,
-    noAutoBOM: PropTypes.bool
+    noAutoBOM: PropTypes.bool,
+    expandAll: PropTypes.bool,
+    hideRowOnExpand: PropTypes.bool
   }),
   fetchInfo: PropTypes.shape({
     dataTotalSize: PropTypes.number
@@ -1724,6 +1760,7 @@ BootstrapTable.propTypes = {
     columnWidth: PropTypes.oneOfType([ PropTypes.number, PropTypes.string ]),
     expandColumnVisible: PropTypes.bool,
     expandColumnComponent: PropTypes.func,
+    expandedColumnHeaderComponent: PropTypes.func,
     expandColumnBeforeSelectColumn: PropTypes.bool
   }),
   footer: PropTypes.bool
@@ -1737,6 +1774,7 @@ BootstrapTable.defaultProps = {
   expandColumnOptions: {
     expandColumnVisible: false,
     expandColumnComponent: undefined,
+    expandedColumnHeaderComponent: undefined,
     expandColumnBeforeSelectColumn: true
   },
   height: '100%',
@@ -1872,7 +1910,9 @@ BootstrapTable.defaultProps = {
     beforeShowError: undefined,
     printToolBar: true,
     insertFailIndicator: Const.INSERT_FAIL_INDICATOR,
-    noAutoBOM: true
+    noAutoBOM: true,
+    expandAll: false,
+    hideRowOnExpand: false
   },
   fetchInfo: {
     dataTotalSize: 0

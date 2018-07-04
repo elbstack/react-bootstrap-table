@@ -1,3 +1,27 @@
+<a name="v4.3.1"></a>
+# [v4.3.1](https://github.com/AllenFang/react-bootstrap-table/compare/v4.3.0...v4.3.1) (2017-12-23)
+## Bug fixes
+* Fixed sizePerPage dropdown broken on `bootstrap@4.0.0-beta.2`([8b28c4b](https://github.com/AllenFang/react-bootstrap-table/commit/8b28c4bb26dbdc04eb11d1d53aad5612c34aa474))
+* Fixed Cannot read property 'type' of null Error in `TableHeaderColumns` when having dynamic columns([1741487](https://github.com/AllenFang/react-bootstrap-table/commit/1741487197d168a1b3cfba53637c1ce39f034233))
+
+## Enhancement
+* if `options.hideSizePerPage` is true, will not render dropdown anymore instead of hidden([ea89bf8](https://github.com/AllenFang/react-bootstrap-table/commit/ea89bf846185cd2f0dcb66f5813ede5531fec17a))
+
+<a name="v4.3.0"></a>
+# [v4.3.0](https://github.com/AllenFang/react-bootstrap-table/compare/v4.2.0...v4.3.0) (2017-12-12)
+## Bug fixes
+* Fixed passing wrong key for custom `prePage`, `nextPage`, `firstPage` and `lastPage`([02363a9](https://github.com/AllenFang/react-bootstrap-table/commit/02363a9981a428632ba90b6403aabaef9010b5bf))
+
+## Enhancements
+* Upgrade `react-modal` to `3.1.7`
+
+## Features
+* Expand/Collapse all rows
+	* [Example](https://github.com/AllenFang/react-bootstrap-table/blob/master/examples/js/expandRow/expand-indicator.js#L74)
+	* [Customization](https://github.com/AllenFang/react-bootstrap-table/blob/master/examples/js/expandRow/custom-expand-indicator.js#L107)
+* Support hide parent row when expanding([24c8556](https://github.com/AllenFang/react-bootstrap-table/commit/24c8556cde36cf5aaa337ebc39ac600a0a1b31d5))
+	* [Example](hideRowOnExpand)
+
 <a name="v4.2.0"></a>
 # [v4.2.0](https://github.com/AllenFang/react-bootstrap-table/compare/v4.1.5...v4.2.0) (2017-12-04)
 ## Bug fixes
